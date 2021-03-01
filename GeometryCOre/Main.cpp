@@ -188,6 +188,9 @@ public:
 		Pos = cubePosition;
 		Size = cubeSize;
 
+		_lines = true;
+		_faces = true;
+
 		SetVertexBuffers();
 
 		Logger::Write("cube created at ", LogLevel::INFO);
@@ -217,11 +220,13 @@ public:
 
 	void GLRender() const override
 	{
+		glColor3f(1.0, 1.0, 0.0);
+
 		if (_faces) {
 			glBegin(GL_TRIANGLES);
 
 
-			for (int i = 0; i < 36; i = i++)
+			for (int i = 0; i < 36; i++)
 			{
 				int index = _facesIndexBuffer[i];
 				Vector3f vect = *_vertexBuffer[index];
@@ -232,10 +237,11 @@ public:
 			glEnd();
 		}
 
+		glColor3f(1.0, 0.0, 0.0);
 		if (_lines) {
 			glBegin(GL_LINES);
 
-			for (int i = 0; i < 24; i = i++)
+			for (int i = 0; i < 24; i++)
 			{
 				int index = _linesIndexBuffer[i];
 				Vector3f vect = *_vertexBuffer[index];
@@ -252,15 +258,15 @@ private:
 	int _facesIndexBuffer[36];
 	int _linesIndexBuffer[24];
 
-	Vector3f* SetVertexBuffers() const {
+	void SetVertexBuffers() {
 
 		// Compute vertex buffer array
 
 		// 8 points:
 		//
-		//		E ---- F    +Y
+		//      E ---- F    +Y
 		//     /|     /|     |
-		//	  A ---- B |     |/
+		//    A ---- B |     |/
 		//    | H .--| G  -- . ------ +X
 		//    |/     |/     /|
 		//    D ---- C     /
