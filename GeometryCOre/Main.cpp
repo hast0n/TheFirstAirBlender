@@ -51,9 +51,9 @@ struct Vector3f {
 
 	Vector3f()
 	{
-		X = 0.0f;
-		Y = 0.0f;
-		Z = 0.0f;
+		X = NULL;
+		Y = NULL;
+		Z = NULL;
 	}
 	Vector3f(float x, float y, float z)
 	{
@@ -152,6 +152,7 @@ public:
 	virtual void RTRender() const = 0;
 	virtual void GLRender() const = 0;
 	//virtual Vector3f* GetVertexBuffer() const = 0;
+	virtual void SetColor(const Vector3f& color) = 0;
 	virtual void Move(const Vector3f& vect3) = 0;
 	virtual void Scale(float factor) = 0;
 };
@@ -166,46 +167,108 @@ public:
 //{
 //public:
 //};
-//
-//class Sphere : public GraphicObject
-//{
-//public:
-//};
-//
+
+class Sphere : public GraphicObject
+{
+public:
+	Vector3f Pos;
+	Vector3f Color;
+	float Radius;
+
+	~Sphere() {}
+	Sphere(const Vector3f& center, float radius) 
+	{
+		Pos = center;
+		Radius = radius;
+	}
+
+	void SetColor(const Vector3f& color) override
+	{
+		Color = color;
+	}
+	void Move(const Vector3f& vect3)
+	{
+		this->Pos += vect3;
+	}
+	void Scale(float factor) override
+	{
+		this->Radius *= factor;
+	}
+
+	void RTRender() const override 
+	{
+
+	}
+
+	void GLRenderFill(const Vector3f& fillColor) const
+	{
+		glColor3f(fillColor.X, fillColor.Y, fillColor.Z);
+
+		//glMatrixMode(GL_MODELVIEW);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		
+		GLAddToDisplayList();
+	}
+	void GLRenderWireframe(const Vector3f& wireColor) const
+	{
+		glColor3f(wireColor.X, wireColor.Y, wireColor.Z);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		GLAddToDisplayList();
+	}
+	void GLRender() const override
+	{
+		if (this->Color == Vector3f(NULL, NULL, NULL))
+			GLRenderFill(Vector3f(1.0, 0.0, 1.0));
+		else GLRenderFill(this->Color);
+
+		GLRenderWireframe(Vector3f(1.0, 0.0, 0.0));
+	}
+
+private:
+	void GLAddToDisplayList() const
+	{
+		GLUquadric* quad = gluNewQuadric();
+
+		glPushMatrix(); // save current position
+			glTranslatef(Pos.X, Pos.Y, Pos.Z);
+			gluSphere(quad, Radius, 100, 30);
+
+		glPopMatrix(); // load previously saved position
+	}
+};
 
 // -----
 class Cube : public GraphicObject
 {
-	bool _lines;
-	bool _faces;
-
 public:
 	Vector3f Pos;
+	Vector3f Color;
 	float Size;
 
+	~Cube() {}
 	Cube(const Vector3f& cubePosition, float cubeSize)
 	{
 		Pos = cubePosition;
 		Size = cubeSize;
 
-		_lines = true;
-		_faces = true;
-
 		SetVertexBuffers();
-
-		Logger::Write("cube created at ", LogLevel::INFO);
+		LogInit();
 	}
 
-	~Cube() {}
-
+	void SetColor(const Vector3f& color) override
+	{
+		Color = color;
+	}
 	void Move(const Vector3f& vect3) override
 	{
-
+		this->Pos += vect3;
 	}
-
-	void Scale(float factor) override
+	void Scale(const float factor) override
 	{
-
+		this->Size *= factor;
+		SetVertexBuffers();
 	}
 
 	void RTRender() const override
@@ -213,50 +276,63 @@ public:
 
 	}
 
-	void SetGLRender(bool lines, bool faces) 
+	void GLRenderFaces(const Vector3f& faceColor) const
 	{
-		_lines = lines; _faces = faces;
-	}
+		glColor3f(faceColor.X, faceColor.Y, faceColor.Z);
 
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		glBegin(GL_TRIANGLES);
+
+		for (int i = 0; i < 36; i++)
+		{
+			int index = _facesIndexBuffer[i];
+			Vector3f vect = *_vertexBuffer[index];
+
+			glVertex3f(vect.X, vect.Y, vect.Z);
+		}
+
+		glEnd();
+	}
+	void GLRenderWireframe(const Vector3f& wireColor) const
+	{
+		glColor3f(wireColor.X, wireColor.Y, wireColor.Z);
+
+		glBegin(GL_LINES);
+
+		for (int i = 0; i < 24; i++)
+		{
+			int index = _linesIndexBuffer[i];
+			Vector3f vect = *_vertexBuffer[index];
+
+			glVertex3f(vect.X, vect.Y, vect.Z);
+		}
+
+		glEnd();
+	}
 	void GLRender() const override
 	{
-		glColor3f(1.0, 1.0, 0.0);
+		if (this->Color == Vector3f(NULL, NULL, NULL))
+			GLRenderFaces(Vector3f(1.0, 0.0, 1.0));
+		else GLRenderFaces(this->Color);
 
-		if (_faces) {
-			glBegin(GL_TRIANGLES);
-
-
-			for (int i = 0; i < 36; i++)
-			{
-				int index = _facesIndexBuffer[i];
-				Vector3f vect = *_vertexBuffer[index];
-
-				glVertex3f(vect.X, vect.Y, vect.Z);
-			}
-
-			glEnd();
-		}
-
-		glColor3f(1.0, 0.0, 0.0);
-		if (_lines) {
-			glBegin(GL_LINES);
-
-			for (int i = 0; i < 24; i++)
-			{
-				int index = _linesIndexBuffer[i];
-				Vector3f vect = *_vertexBuffer[index];
-
-				glVertex3f(vect.X, vect.Y, vect.Z);
-			}
-
-			glEnd();
-		}
+		GLRenderWireframe(Vector3f(1.0, 0.0, 0.0));
 	}
 
 private:
 	Vector3f* _vertexBuffer[8];
 	int _facesIndexBuffer[36];
 	int _linesIndexBuffer[24];
+
+	void LogInit() const
+	{
+		//char* a = Pos.X;
+		//char* x = new char[, Pos.Y, Size]
+		//std::format("cube created at [{}; {}] with size {}", );
+
+		//Logger::Write(log_string, LogLevel::INFO);
+		//delete x[];
+	}
 
 	void SetVertexBuffers() {
 
@@ -326,24 +402,18 @@ private:
 			Vector3f* vert = vertexBuffer[i]; 
 			_vertexBuffer[i] = vert;
 		}
-		// .^^^^^^^^^^^^^....................
-		// Error: expression must a modifiable lvalue
 				
 		for (int i = 0; i < 36; i++) 
 		{ 
 			int index = facesIndexBuffer[i]; 
 			_facesIndexBuffer[i] = index;
 		}
-		// .^^^^^^^^^^^^^^^^^...............
-		// Error: expression must a modifiable lvalue
 		
 		for (int i = 0; i < 24; i++) 
 		{ 
 			int index = linesIndexBuffer[i]; 
 			_linesIndexBuffer[i] = index;
 		}
-		// .^^^^^^^^^^^^^^^^^...............
-		// Error: expression must a modifiable lvalue
 	}
 };
 
@@ -375,14 +445,20 @@ public:
 	void Init()
 	{
 		Cube* cube1 = new Cube(Vector3f(0, 0, 0), 1);
+		cube1->SetColor(Vector3f(0.583f, 0.771f, 0.014f));
 		Add(cube1);
 
+		Sphere* sphere1 = new Sphere(Vector3f(0, 0, 0), 0.6);
+		sphere1->SetColor(Vector3f(0.0, 1.0, 0.0));
+		Add(sphere1);
+
 		Cube* cube2 = new Cube(Vector3f(0, 0, -3), 1);
+		cube2->SetColor(Vector3f(0.195f, 0.548f, 0.859f));
 		Add(cube2);
 
 		Cube* cube3 = new Cube(Vector3f(-2, 0, -3), 1);
+		cube3->SetColor(Vector3f(0.053f, 0.959f, 0.120f));
 		Add(cube3);
-
 
 
 		//Vector3f v1 = Vector3f(1, 1, 1);
@@ -396,7 +472,7 @@ public:
 		//Vector3f wedgeProduct2 = v4 ^ v5;
 	}
 
-	void Draw()
+	void GLDraw()
 	{
 		for (int i = 0; i < 10; i++)
 		{
@@ -430,13 +506,45 @@ void init()
 	glMatrixMode(GL_MODELVIEW);
 }
 
+int* prevX = new int(NULL);
+int* prevY = new int (NULL);
+
+// GLUT dependent
 void mouse(int button, int state, int x, int y)
 {
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(60.0, 1.0, 0.1, 100); // equi glFrustum
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+
+	//if (button == GLUT_LEFT_BUTTON)
+	//{
+	//	switch (state)
+	//	{
+	//	case GLUT_DOWN:
+	//		if (*prevX == NULL || *prevY == NULL)
+	//		{
+	//			*prevX = x;
+	//			*prevY = y;
+	//			break;
+	//		}
+	//		std::cout << "GLUT_DOWN at [" << x << "," << y << "] prevx: " << *prevX << ", prevY: " << *prevY << std::endl;
+
+	//		*prevX = x;
+	//		*prevY = y;
+	//		glLoadIdentity();
+	//		gluLookAt(x/1000, y/1000, 1.0, 0.0, 0.0, 0.0, 0.0, 2.0, -1.8);
+	//		break;
+
+	//	case GLUT_UP:
+	//		*prevX = NULL;
+	//		*prevY = NULL;
+	//		break;
+	//	}
+
+	//}
+
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadIdentity();
+	//gluPerspective(60.0, 1.0, 0.1, 100); // equi glFrustum
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
 	glutPostRedisplay();
 	//glOrtho(1.1, 1.1, 0.1, 1.1, 1.1, 1.1);
 }
@@ -444,8 +552,8 @@ void mouse(int button, int state, int x, int y)
 void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glColor3f(1.0, 1.0, 0.0);
-	scene.Draw();
+
+	scene.GLDraw();
 
 	glFlush();
 }
@@ -458,14 +566,17 @@ int main(int argc, char** argv)
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow(argv[0]);
 
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
 	// Initialiser la scène avec un cube, une sphere, un plan
 
 	glutDisplayFunc(display);
 	//glutReshapeFunc(reshape);
-	//glutMouseFunc(mouse);
+	glutMouseFunc(mouse);
 
 	std::cout << glGetString(GL_VERSION) << std::endl; // 4.6.0 NVIDIA 456.87
-	std::cout << "C++ version " << __cplusplus << std::endl; // 4.6.0 NVIDIA 456.87
+	std::cout << "C++ version " << __cplusplus << std::endl;
 
 	init();
 	scene.Init();
