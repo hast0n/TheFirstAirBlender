@@ -1,43 +1,18 @@
-//class graphic_object
-//{
-//public:
-//	virtual void RTRender();
-//	virtual void GLRender();
-//};
-//
-//class plane : public graphic_object
-//{
-//public:
-//};
-//
-//class camera : public graphic_object
-//{
-//public:
-//};
-//
-//class sphere : public graphic_object
-//{
-//public:
-//};
-//
-//class cube : public graphic_object
-//{
-//private:
-//	unsigned int X, Y, Side;
-//public:
-//	cube(unsigned int posX, unsigned int posY, unsigned int side)
-//	{
-//		X = posX; Y = posY; Side = side;
-//	}
-//
-//	void RTRender() override
-//	{
-//		
-//	}
-//
-//	void GLRender() override
-//	{
-//		
-//	}
-//};
-//
+class Vector3f;
+
+class GraphicObject
+{
+
+public:
+	virtual void RTRender() const = 0;
+	
+	virtual void GLRender() const = 0;
+	
+	//virtual Vector3f* GetVertexBuffer() const = 0;
+	
+	virtual void SetColor(const Vector3f& color) = 0;
+	
+	virtual void Move(const Vector3f& vect3) = 0;
+	
+	virtual void Scale(float factor) = 0;
+};
