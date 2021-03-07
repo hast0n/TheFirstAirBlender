@@ -12,6 +12,7 @@ Vector3f::Vector3f(float x, float y, float z) :X(x), Y(y), Z(z) {
 	//Y = y;
 	//Z = z;
 }
+
 Vector3f::Vector3f(const Vector3f& v)
 {
 	X = v.X;
@@ -27,6 +28,7 @@ Vector3f Vector3f::operator+(const Vector3f& v1) const
 		v1.Z + Z
 	);
 }
+
 void Vector3f::operator+=(const Vector3f& v2)
 {
 	X += v2.X;
@@ -38,7 +40,6 @@ Vector3f Vector3f::operator-() const
 {
 	return Vector3f(-X, -Y, -Z);
 }
-
 
 Vector3f Vector3f::operator-(const Vector3f& v2) const
 {
@@ -60,6 +61,7 @@ float Vector3f::operator*(const Vector3f& v2) const // produit scalaire
 {
 	return X * v2.X + Y * v2.Y + Z * v2.Z;
 }
+
 Vector3f Vector3f::operator*(float scalar) const
 {
 	return Vector3f(
@@ -68,6 +70,7 @@ Vector3f Vector3f::operator*(float scalar) const
 		scalar * Z
 	);
 }
+
 void Vector3f::operator*=(float scalar)
 {
 	X *= scalar;
@@ -82,6 +85,7 @@ bool Vector3f::operator==(const Vector3f& v2) const
 		Y == v2.Y &&
 		Z == v2.Z;
 }
+
 void Vector3f::operator=(const Vector3f& v2)
 {
 	X = v2.X;

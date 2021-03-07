@@ -1,7 +1,8 @@
 #include "Header.h"
 
-
 Scene scene;
+int* prevX = new int(NULL);
+int* prevY = new int (NULL);
 
 void init()
 {
@@ -18,10 +19,6 @@ void init()
 	// switch back to modelview matrix mode
 	glMatrixMode(GL_MODELVIEW);
 }
-
-
-int* prevX = new int(NULL);
-int* prevY = new int (NULL);
 
 void mouse(int button, int state, int x, int y)
 {
