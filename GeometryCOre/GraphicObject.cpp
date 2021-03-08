@@ -4,6 +4,8 @@ class GraphicObject
 {
 
 public:
+	virtual ~GraphicObject() = default;
+	
 	virtual void RTRender() const = 0;
 	
 	virtual void GLRender() const = 0;

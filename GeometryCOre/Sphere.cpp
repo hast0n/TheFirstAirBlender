@@ -1,4 +1,6 @@
-#include "Header.h"
+#include "Sphere.h"
+#include "glut.h"
+#include <iostream>
 
 Sphere::Sphere(const Vector3f& center, float radius)
 {

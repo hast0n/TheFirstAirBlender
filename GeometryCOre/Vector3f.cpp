@@ -1,4 +1,5 @@
-#include "Header.h"
+#include <iostream>
+#include "Vector3f.h"
 
 Vector3f::Vector3f()
 {

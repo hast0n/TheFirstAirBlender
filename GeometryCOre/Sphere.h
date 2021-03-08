@@ -9,7 +9,7 @@ public:
 	Vector3f Color;
 	float Radius;
 
-	~Sphere() {}
+	~Sphere() = default;
 	Sphere(const Vector3f& center, float radius);
 
 	void SetColor(const Vector3f& color);

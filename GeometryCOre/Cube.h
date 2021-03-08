@@ -27,6 +27,6 @@ private:
 	int _facesIndexBuffer[36];
 	int _linesIndexBuffer[24];
 
-	void LogInit() const;
-	void SetVertexBuffers();
+	static void LogInit();
+	void GenerateVertexBuffers();
 };

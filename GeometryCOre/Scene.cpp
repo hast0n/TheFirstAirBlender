@@ -1,4 +1,7 @@
-#include "Header.h"
+#include "Scene.h"
+#include "Cube.h"
+#include "Sphere.h"
+#include <iostream>
 
 //Scene::~Scene()
 //{
@@ -17,21 +20,21 @@ void Scene::Add(GraphicObject* obj)
 
 void Scene::Init()
 {
-	Cube* cube1 = new Cube(Vector3f(0, 0, 0), 1);
-	cube1->SetColor(Vector3f(0.583f, 0.771f, 0.014f));
-	Add(cube1);
+	//Cube* cube1 = new Cube(Vector3f(0, 0, 0), 1);
+	//cube1->SetColor(Vector3f(0.583f, 0.771f, 0.014f));
+	//Add(cube1);
 
-	Sphere* sphere1 = new Sphere(Vector3f(0, 0, 0), 0.6);
-	sphere1->SetColor(Vector3f(0.0, 1.0, 0.0));
-	Add(sphere1);
+	//Sphere* sphere1 = new Sphere(Vector3f(0, 0, 0), 0.6f);
+	//sphere1->SetColor(Vector3f(0.0, 1.0, 0.0));
+	//Add(sphere1);
 
-	Cube* cube2 = new Cube(Vector3f(0, 0, -3), 1);
-	cube2->SetColor(Vector3f(0.195f, 0.548f, 0.859f));
-	Add(cube2);
+	//Cube* cube2 = new Cube(Vector3f(0, 0, -3), 1);
+	//cube2->SetColor(Vector3f(0.195f, 0.548f, 0.859f));
+	//Add(cube2);
 
-	Cube* cube3 = new Cube(Vector3f(-2, 0, -3), 1);
-	cube3->SetColor(Vector3f(0.053f, 0.959f, 0.120f));
-	Add(cube3);
+	//Cube* cube3 = new Cube(Vector3f(-2, 0, -3), 1);
+	//cube3->SetColor(Vector3f(0.053f, 0.959f, 0.120f));
+	//Add(cube3);
 
 
 	//Vector3f v1 = Vector3f(1, 1, 1);

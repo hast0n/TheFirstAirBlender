@@ -1,4 +1,9 @@
-#include "Header.h"
+#include <windows.h>  // For MS Windows
+#include <glut.h>
+#include <iostream>
+#include "Cube.h"
+#include "Sphere.h"
+#include "Scene.h"
 
 Scene scene;
 int* prevX = new int(NULL);
@@ -18,6 +23,26 @@ void init()
 
 	// switch back to modelview matrix mode
 	glMatrixMode(GL_MODELVIEW);
+
+	Cube* cube1 = new Cube(Vector3f(0, 0, 0), 1);
+	cube1->SetColor(Vector3f(0.583f, 0.771f, 0.014f));
+	scene.Add(cube1);
+
+	Cube* cube2 = new Cube(Vector3f(0, 0, -3), 1);
+	cube2->SetColor(Vector3f(0.195f, 0.548f, 0.859f));
+	scene.Add(cube2);
+
+	Cube* cube3 = new Cube(Vector3f(-2, 0, -3), 1);
+	cube3->SetColor(Vector3f(0.053f, 0.959f, 0.120f));
+	scene.Add(cube3);
+
+	Sphere* sphere1 = new Sphere(Vector3f(0, 0, 0), 0.6f);
+	sphere1->SetColor(Vector3f(0.0, 1.0, 0.0));
+	scene.Add(sphere1);
+	
+	Sphere* sphere2 = new Sphere(Vector3f(2, 0, -3), 1.0f);
+	sphere2->SetColor(Vector3f(1.0f, 1.0f, 1.0f));
+	scene.Add(sphere2);
 }
 
 void mouse(int button, int state, int x, int y)
@@ -74,6 +99,9 @@ int main(int argc, char** argv)
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+
+	//glEnable( GL_DEBUG_OUTPUT );
+	//glDebugMessageCallback( MessageCallback, 0 );
 
 	// Initialiser la scène avec un cube, une sphere, un plan
 

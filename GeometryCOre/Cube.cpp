@@ -1,11 +1,13 @@
-#include "Header.h"
+#include <iostream>
+#include "glut.h"
+#include "Cube.h"
 
 Cube::Cube(const Vector3f& cubePosition, float cubeSize)
 {
 	Pos = cubePosition;
 	Size = cubeSize;
 
-	SetVertexBuffers();
+	GenerateVertexBuffers();
 	LogInit();
 }
 
@@ -22,7 +24,7 @@ void Cube::Move(const Vector3f& vect3)
 void Cube::Scale(const float factor)
 {
 	this->Size *= factor;
-	SetVertexBuffers();
+	GenerateVertexBuffers();
 }
 
 void Cube::RTRender() const
@@ -75,7 +77,7 @@ void Cube::GLRender() const
 	GLRenderWireframe(Vector3f(1.0, 0.0, 0.0));
 }
 
-void Cube::LogInit() const
+void Cube::LogInit()
 {
 	//char* a = Pos.X;
 	//char* x = new char[, Pos.Y, Size]
@@ -85,7 +87,7 @@ void Cube::LogInit() const
 	//delete x[];
 }
 
-void Cube::SetVertexBuffers() {
+void Cube::GenerateVertexBuffers() {
 
 	// Compute vertex buffer array
 
