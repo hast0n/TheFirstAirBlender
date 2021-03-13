@@ -155,6 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Cube.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="GLErrorHandler.cpp" />
     <ClCompile Include="GraphicObject.cpp" />
     <ClCompile Include="Logger.cpp" />
@@ -166,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="GLErrorHandler.h" />
     <ClInclude Include="GraphicObject.h" />
     <ClInclude Include="Logger.h" />

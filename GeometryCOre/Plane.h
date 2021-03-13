@@ -26,5 +26,9 @@ public:
 	void GLRender() const;
 
 private:
+	Vector3f* _vertexBuffer[4];
+	int _facesIndexBuffer[6];
+	//int _linesIndexBuffer[24];
+
 	void GenerateVertexBuffer();
 };

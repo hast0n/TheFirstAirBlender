@@ -3,6 +3,7 @@
 #include <iostream>
 #include "Cube.h"
 #include "Sphere.h"
+#include "Plane.h"
 #include "Scene.h"
 
 Scene scene;
@@ -15,13 +16,6 @@ void init()
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glShadeModel(GL_FLAT);
 
-	// set perspective
-	//glMatrixMode(GL_PROJECTION);
-	gluPerspective(60.0, 1.0, 0.1, 100); // equi glFrustum
-	//glMatrixMode(GL_MODELVIEW);
-	gluLookAt(0.0, 1.0, 2.0, 0.0, 0.0, 0.0, 0.0, 2.0, -1.8);
-
-	// switch back to modelview matrix mode
 	glMatrixMode(GL_MODELVIEW);
 
 	Cube* cube1 = new Cube(Vector3f(0, 0, 0), 1);
@@ -32,7 +26,7 @@ void init()
 	cube2->SetColor(Vector3f(0.195f, 0.548f, 0.859f));
 	scene.Add(cube2);
 
-	Cube* cube3 = new Cube(Vector3f(-2, 0, -3), 1);
+	Cube* cube3 = new Cube(Vector3f(-2, 0, -2), 1);
 	cube3->SetColor(Vector3f(0.053f, 0.959f, 0.120f));
 	scene.Add(cube3);
 
@@ -43,6 +37,15 @@ void init()
 	Sphere* sphere2 = new Sphere(Vector3f(2, 0, -3), 1.0f);
 	sphere2->SetColor(Vector3f(1.0f, 1.0f, 1.0f));
 	scene.Add(sphere2);
+
+	Plane* plane1 = new Plane(Vector3f(0.0f, -.5f, 0.0f), 3.0f);
+	plane1->SetColor(Vector3f(0.0f, 0.0f, 1.0f));
+	scene.Add(plane1);
+
+	// Camera's default perspective is ok here
+	scene.Camera->TranslateTo(Vector3f(0.0f, 1.0f, 2.0f));
+	scene.Camera->RotateTo(Vector3f(0.0f, 2.0f, -1.8f));	
+	scene.Camera->LookAt(Vector3f(0.0f, 0.0f, 0.0f));
 }
 
 void mouse(int button, int state, int x, int y)
@@ -84,7 +87,7 @@ void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	scene.GLDraw();
+	scene.GL_Draw();
 
 	glFlush();
 }

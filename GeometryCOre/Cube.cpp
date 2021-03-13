@@ -18,7 +18,9 @@ void Cube::SetColor(const Vector3f& color)
 
 void Cube::Move(const Vector3f& vect3)
 {
+	// TODO: use matrix states instead
 	this->Pos += vect3;
+	GenerateVertexBuffers();
 }
 
 void Cube::Scale(const float factor)
