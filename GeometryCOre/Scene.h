@@ -13,7 +13,7 @@ public:
 	GraphicObject* graphic_object_array[10]{};
 
 	Scene();
-	//~Scene() = delete; // Scene will only be deleted on program exit (for now)
+	~Scene(); // Scene will only be deleted on program exit (for now)
 
 	void Add(GraphicObject* obj);
 

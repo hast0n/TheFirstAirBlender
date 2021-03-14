@@ -1,14 +1,14 @@
 #include "Scene.h"
 #include <iostream>
 
-//Scene::~Scene()
-//{
-//	for (int i = 0; i < _nbGraphicObject; i++)
-//	{
-//		GraphicObject* obj = graphic_object_array[i];
-//		delete obj;
-//	}
-//}
+Scene::~Scene()
+{
+	for (int i = 0; i < _nbGraphicObject; i++)
+	{
+		GraphicObject* obj = graphic_object_array[i];
+		delete obj;
+	}
+}
 
 Scene::Scene()
 {

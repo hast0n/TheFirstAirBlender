@@ -20,7 +20,7 @@ void Cube::Move(const Vector3f& vect3)
 {
 	// TODO: use matrix states instead
 	this->Pos += vect3;
-	GenerateVertexBuffers();
+	// GenerateVertexBuffers();
 }
 
 void Cube::Scale(const float factor)
@@ -36,21 +36,25 @@ void Cube::RTRender() const
 
 void Cube::GLRenderFaces(const Vector3f& faceColor) const
 {
+	glMatrixMode(GL_MODELVIEW);
 	glColor3f(faceColor.X, faceColor.Y, faceColor.Z);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glPopMatrix();
+	
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glBegin(GL_TRIANGLES);
 
-	glBegin(GL_TRIANGLES);
+			for (int i = 0; i < 36; i++)
+			{
+				int index = _facesIndexBuffer[i];
+				Vector3f vect = *_vertexBuffer[index];
 
-	for (int i = 0; i < 36; i++)
-	{
-		int index = _facesIndexBuffer[i];
-		Vector3f vect = *_vertexBuffer[index];
+				glVertex3f(vect.X, vect.Y, vect.Z);
+			}
 
-		glVertex3f(vect.X, vect.Y, vect.Z);
-	}
+		glEnd();
 
-	glEnd();
+	//glPushMatrix();
 }
 
 void Cube::GLRenderWireframe(const Vector3f& wireColor) const

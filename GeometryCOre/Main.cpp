@@ -5,10 +5,12 @@
 #include "Sphere.h"
 #include "Plane.h"
 #include "Scene.h"
+#include "PNGExporter.h"
+#include "RayTracer.h"
 
 Scene scene;
 int* prevX = new int(NULL);
-int* prevY = new int (NULL);
+int* prevY = new int(NULL);
 
 void init()
 {
@@ -43,9 +45,9 @@ void init()
 	scene.Add(plane1);
 
 	// Camera's default perspective is ok here
-	scene.Camera->TranslateTo(Vector3f(0.0f, 1.0f, 2.0f));
+	scene.Camera->SetPosition(Vector3f(0.0f, 1.0f, 2.0f));
 	scene.Camera->RotateTo(Vector3f(0.0f, 2.0f, -1.8f));	
-	scene.Camera->LookAt(Vector3f(0.0f, 0.0f, 0.0f));
+	scene.Camera->SetTarget(Vector3f(0.0f, 0.0f, 0.0f));
 }
 
 void mouse(int button, int state, int x, int y)
@@ -86,14 +88,47 @@ void mouse(int button, int state, int x, int y)
 void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	scene.GL_Draw();
-
 	glFlush();
+}
+
+void TestRed()
+{
+	int width = 100;
+	int height = 50;
+	
+	unsigned char* image = new unsigned char[width*height*4];
+
+	for(unsigned y = 0; y < height; y++) {
+		for(unsigned x = 0; x < width; x++) {
+		    image[4 * width * y + 4 * x + 0] = 255;
+		    image[4 * width * y + 4 * x + 1] = 0;
+		    image[4 * width * y + 4 * x + 2] = 0;
+		    image[4 * width * y + 4 * x + 3] = 255;
+		}
+	}
+
+	
+	PNGExporter exporter = PNGExporter(image, 10, 5);
+	exporter.Export("test.png");
+}
+
+void RayTraceScene()
+{
+	int width = 10;
+	int height = 10;
+	
+	RayTracer rt = RayTracer(scene, width, height);
+	rt.Render();
+
+	
 }
 
 int main(int argc, char** argv)
 {
+
+	//TestRed();
+	
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 	glutInitWindowSize(1000, 1000);
@@ -118,7 +153,9 @@ int main(int argc, char** argv)
 	init();
 	scene.Init();
 
-	glutMainLoop();
+	//RayTraceScene();
 
+	glutMainLoop();
+	
 	return 0;
 }

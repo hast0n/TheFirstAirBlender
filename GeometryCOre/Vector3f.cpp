@@ -8,11 +8,7 @@ Vector3f::Vector3f()
 	Z = NULL;
 }
 
-Vector3f::Vector3f(float x, float y, float z) :X(x), Y(y), Z(z) {
-	//X = x;
-	//Y = y;
-	//Z = z;
-}
+Vector3f::Vector3f(float x, float y, float z) :X(x), Y(y), Z(z) {}
 
 Vector3f::Vector3f(const Vector3f& v)
 {
@@ -87,12 +83,13 @@ bool Vector3f::operator==(const Vector3f& v2) const
 		Z == v2.Z;
 }
 
-void Vector3f::operator=(const Vector3f& v2)
-{
-	X = v2.X;
-	Y = v2.Y;
-	Z = v2.Z;
-}
+//Vector3f& Vector3f::operator=(const Vector3f& v2)
+//{
+//	X = v2.X;
+//	Y = v2.Y;
+//	Z = v2.Z;
+//	return *this;
+//}
 
 Vector3f Vector3f::operator^(const Vector3f& v2) const // Produit vectoriel (normale)
 {

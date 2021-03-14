@@ -4,58 +4,39 @@
 
 Camera::Camera()
 {
-	_position = new Vector3f(0.0f, 0.0f, 1.0f);
-	_reference = new Vector3f(0.0f, 0.0f, 0.0f);
-	_rotation = new Vector3f(0.0f, 1.0f, 0.0f);
+	_position.Z = 1;
+	_up_vector.Y = 1;
 
 	_fov = 60.0f;
-	_ar = 1.0f;
+	_aspect_ratio = 1.0f;
 
 	_zNear = 0.1f;
 	_zFar = 100.0f;
 }
 
-Camera::~Camera()
-{
-	delete _position;
-	delete _rotation;
-	delete _reference;
-}
-
 void Camera::RotateTo(const Vector3f& vect)
 {
-	delete _rotation;
-	_rotation = new Vector3f(vect);
+	_up_vector = vect;
 }
 
 void Camera::Rotate(const Vector3f& vect)
 {
-	// TODO: Uhh... Is it ok ??
-	
-	Vector3f currentV = *_rotation;
-	delete _rotation;
-	_rotation = new Vector3f(vect + currentV);
+	_up_vector += vect;
 }
 
-void Camera::TranslateTo(const Vector3f& vect)
+void Camera::SetPosition(const Vector3f& vect)
 {
-	delete _position;
-	_position = new Vector3f(vect);
+	_position = vect;
 }
 
 void Camera::Translate(const Vector3f& vect)
 {
-	// TODO: Uhh... Is it ok ?? (2)
-	
-	Vector3f currentV = *_position;
-	delete _position;
-	_position = new Vector3f(vect + currentV);
+	_position += vect;
 }
 
-void Camera::LookAt(const Vector3f& vect)
+void Camera::SetTarget(const Vector3f& vect)
 {
-	delete _reference;
-	_reference = new Vector3f(vect);
+	_target = vect;
 }
 
 void Camera::SetFOV(float fov)
@@ -63,12 +44,12 @@ void Camera::SetFOV(float fov)
 	_fov = fov;
 }
 
-void Camera::SetAspectRatio(float ar)
+void Camera::SetAspectRatio(float aspectRatio)
 {
-	_ar = ar;
+	_aspect_ratio = aspectRatio;
 }
 
-void Camera::SetZPlane(float zNear, float zFar)
+void Camera::SetZPlanes(float zNear, float zFar)
 {
 	_zNear = zNear;
 	_zFar = zFar;
@@ -76,7 +57,7 @@ void Camera::SetZPlane(float zNear, float zFar)
 
 void Camera::ResetPosition()
 {
-	this->TranslateTo(Vector3f(0.0f, 0.0f, 1.0f));
+	this->SetPosition(Vector3f(0.0f, 0.0f, 1.0f));
 }
 
 void Camera::ResetRotation()
@@ -84,24 +65,24 @@ void Camera::ResetRotation()
 	this->RotateTo(Vector3f(0.0f, 1.0f, 0.0f));
 }
 
-void Camera::GL_Init()
+void Camera::GL_Init() const
 {
-	gluPerspective(
-		this->_fov,
-		this->_ar,
-		this->_zNear,
-		this->_zFar
-	);
+	gluPerspective(_fov, _aspect_ratio, _zNear, _zFar);
 	
 	gluLookAt(
-		this->_position->X,
-		this->_position->Y,
-		this->_position->Z,
-		this->_reference->X,
-		this->_reference->Y,
-		this->_reference->Z,
-		this->_rotation->X,
-		this->_rotation->Y,
-		this->_rotation->Z
+		_position.X,
+		_position.Y,
+		_position.Z,
+		_target.X,
+		_target.Y,
+		_target.Z,
+		_up_vector.X,
+		_up_vector.Y,
+		_up_vector.Z
 	);
+}
+
+Vector3f Camera::getPosition() const
+{
+	return Vector3f(_position.X, _position.Y, _position.Z);
 }

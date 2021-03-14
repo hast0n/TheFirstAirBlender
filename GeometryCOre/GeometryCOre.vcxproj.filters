@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Core3D">
+      <UniqueIdentifier>{76ccad29-540b-4f62-8d6c-123eb0b31e0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\OpenGL">
+      <UniqueIdentifier>{9d41aecb-44d7-4d66-9632-ba64ef715bb4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\RayTracing">
+      <UniqueIdentifier>{7c33c100-de24-44f5-bc58-2b395db22ce6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -45,34 +54,52 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RayTracer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PNGExporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lodepng.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GraphicObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector3f.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files\Core3D</Filter>
+    </ClInclude>
     <ClInclude Include="Cube.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Core3D</Filter>
     </ClInclude>
-    <ClInclude Include="Sphere.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="GraphicObject.h">
+      <Filter>Header Files\Core3D</Filter>
     </ClInclude>
     <ClInclude Include="Plane.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Core3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Header Files\Core3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3f.h">
+      <Filter>Header Files\Core3D</Filter>
     </ClInclude>
     <ClInclude Include="GLErrorHandler.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files\Core3D</Filter>
+    </ClInclude>
+    <ClInclude Include="RayTracer.h">
+      <Filter>Header Files\RayTracing</Filter>
+    </ClInclude>
+    <ClInclude Include="PNGExporter.h">
+      <Filter>Header Files\RayTracing</Filter>
+    </ClInclude>
+    <ClInclude Include="lodepng.h">
+      <Filter>Header Files\RayTracing</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

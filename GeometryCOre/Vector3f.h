@@ -22,7 +22,7 @@ struct Vector3f {
 	void operator*=(float scalar);
 
 	bool operator==(const Vector3f& v2) const;
-	void operator=(const Vector3f& v2);
-
+	Vector3f&  operator=( const Vector3f& v2)=default;
+	
 	Vector3f operator^(const Vector3f& v2) const;
 };

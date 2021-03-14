@@ -1,15 +1,14 @@
 #pragma once
 #include "Vector3f.h"
 
-
 class Camera
 {
-	Vector3f* _position; // eye at x, y, z
-	Vector3f* _reference; // eye looking at x, y, z
-	Vector3f* _rotation; // eye pitch (up vector)
+	Vector3f _position; // eye at x, y, z
+	Vector3f _target; // eye looking at x, y, z
+	Vector3f _up_vector; // eye pitch (up vector)
 	
 	float _fov;
-	float _ar;
+	float _aspect_ratio;
 
 	float _zNear;
 	float _zFar;
@@ -17,7 +16,7 @@ class Camera
 public:
 	Camera();
 
-	~Camera();
+	~Camera() = default;
 
 	void Rotate(const Vector3f& vect);
 
@@ -25,19 +24,22 @@ public:
 	
 	void Translate(const Vector3f& vect);
 
-	void TranslateTo(const Vector3f& vect);
+	void SetPosition(const Vector3f& vect);
 
-	void LookAt(const Vector3f& vect);
+	void SetTarget(const Vector3f& vect);
 	
 	void SetFOV(float fov);
 
-	void SetAspectRatio(float ar);
+	void SetAspectRatio(float aspectRatio);
 
-	void SetZPlane(float zNear, float zFar);
+	void SetZPlanes(float zNear, float zFar);
 
 	void ResetPosition();
 
 	void ResetRotation();
 
-	void GL_Init();
+	// TODO: namespaces 3DCore --|> OpenGL
+	void GL_Init() const;
+
+	Vector3f getPosition() const;
 };
