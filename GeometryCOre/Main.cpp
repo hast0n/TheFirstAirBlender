@@ -12,14 +12,8 @@ Scene scene;
 int* prevX = new int(NULL);
 int* prevY = new int(NULL);
 
-void init()
+void initScene()
 {
-	// Set basic color & shade model
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glShadeModel(GL_FLAT);
-
-	glMatrixMode(GL_MODELVIEW);
-
 	Cube* cube1 = new Cube(Vector3f(0, 0, 0), 1);
 	cube1->SetColor(Vector3f(0.583f, 0.771f, 0.014f));
 	scene.Add(cube1);
@@ -113,22 +107,22 @@ void TestRed()
 	exporter.Export("test.png");
 }
 
-void RayTraceScene()
+void rtTest()
 {
 	int width = 10;
 	int height = 10;
 	
 	RayTracer rt = RayTracer(scene, width, height);
-	rt.Render();
+	// rt.Render();
 
+	std::cout << scene.Camera->getForwardAxis() << std::endl;
+	std::cout << scene.Camera->getUpAxis() << std::endl;
+	std::cout << scene.Camera->getRightAxis() << std::endl;
 	
 }
 
-int main(int argc, char** argv)
+void glTest(int argc, char** argv)
 {
-
-	//TestRed();
-	
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 	glutInitWindowSize(1000, 1000);
@@ -138,11 +132,6 @@ int main(int argc, char** argv)
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	//glEnable( GL_DEBUG_OUTPUT );
-	//glDebugMessageCallback( MessageCallback, 0 );
-
-	// Initialiser la scène avec un cube, une sphere, un plan
-
 	glutDisplayFunc(display);
 	//glutReshapeFunc(reshape);
 	glutMouseFunc(mouse);
@@ -150,12 +139,20 @@ int main(int argc, char** argv)
 	std::cout << glGetString(GL_VERSION) << std::endl; // 4.6.0 NVIDIA 456.87
 	std::cout << "C++ version " << __cplusplus << std::endl;
 
-	init();
-	scene.Init();
+	// Set basic color & shade model
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glShadeModel(GL_FLAT);
 
-	//RayTraceScene();
+	glutMainLoop();	
+}
 
-	glutMainLoop();
+int main(int argc, char** argv)
+{
+	initScene();
+	
+	// glTest(argc, argv);
+	
+	rtTest();
 	
 	return 0;
 }

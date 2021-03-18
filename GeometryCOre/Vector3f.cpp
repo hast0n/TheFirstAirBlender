@@ -91,11 +91,23 @@ bool Vector3f::operator==(const Vector3f& v2) const
 //	return *this;
 //}
 
-Vector3f Vector3f::operator^(const Vector3f& v2) const // Produit vectoriel (normale)
+Vector3f Vector3f::operator^(const Vector3f& v2) const // Produit vectoriel (normale - wedge product)
 {
 	return Vector3f(
 		Y * v2.Z - Z * v2.Y,
 		Z * v2.X - X * v2.Z,
 		X * v2.Y - Y * v2.X
 	);
+}
+
+Vector3f Vector3f::normalize() const
+{
+	float length = sqrt((X * X) + (Y * Y) + (Z * Z));
+	return Vector3f(X / length, Y / length, Z / length);
+}
+
+std::ostream& operator<<(std::ostream& out, Vector3f v)
+{
+	out << "Vector3f(" << v.X << ", " << v.Y << ", " << v.Z <<")";
+	return out;
 }

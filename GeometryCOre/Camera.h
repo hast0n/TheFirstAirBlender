@@ -3,15 +3,17 @@
 
 class Camera
 {
-	Vector3f _position; // eye at x, y, z
-	Vector3f _target; // eye looking at x, y, z
-	Vector3f _up_vector; // eye pitch (up vector)
+	Vector3f _position; // eye at x, y, z (world space)
+	Vector3f _target; // eye looking at x, y, z (world space)
+	Vector3f _up_vector; // up vector (world space)
 	
 	float _fov;
 	float _aspect_ratio;
 
 	float _zNear;
 	float _zFar;
+
+	void set_up_vector();
 
 public:
 	Camera();
@@ -24,6 +26,8 @@ public:
 	
 	void Translate(const Vector3f& vect);
 
+	
+
 	void SetPosition(const Vector3f& vect);
 
 	void SetTarget(const Vector3f& vect);
@@ -34,6 +38,8 @@ public:
 
 	void SetZPlanes(float zNear, float zFar);
 
+
+
 	void ResetPosition();
 
 	void ResetRotation();
@@ -41,5 +47,23 @@ public:
 	// TODO: namespaces 3DCore --|> OpenGL
 	void GL_Init() const;
 
+
+	
+	float getFOV() const;
+	
+	float getAspectRatio() const;
+	
+	float getZNear() const;
+
+	float getZFar() const;
+
 	Vector3f getPosition() const;
+	
+	Vector3f getTarget() const;
+	
+	Vector3f getForwardAxis() const;
+	
+	Vector3f getRightAxis() const;
+
+	Vector3f getUpAxis() const;
 };

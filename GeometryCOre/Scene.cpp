@@ -6,7 +6,8 @@ Scene::~Scene()
 	for (int i = 0; i < _nbGraphicObject; i++)
 	{
 		GraphicObject* obj = graphic_object_array[i];
-		delete obj;
+		//delete obj;
+		// TODO: Why deletion not working ?
 	}
 }
 

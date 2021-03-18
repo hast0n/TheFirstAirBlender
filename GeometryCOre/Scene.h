@@ -12,6 +12,8 @@ public:
 	
 	GraphicObject* graphic_object_array[10]{};
 
+	Vector3f BackgroundColor = Vector3f(0.26f, 0.26f, 0.26f);
+
 	Scene();
 	~Scene(); // Scene will only be deleted on program exit (for now)
 
@@ -20,5 +22,4 @@ public:
 	void Init();
 
 	void GL_Draw();
-
 };

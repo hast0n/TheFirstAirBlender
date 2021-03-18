@@ -5,7 +5,7 @@
 
 static GLfloat spin = 0.0;
 
-void init(void)
+void initScene(void)
 {
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glShadeModel(GL_FLAT);
@@ -67,7 +67,7 @@ int main(int argc, char** argv)
     glutInitWindowSize(250, 250);
     glutInitWindowPosition(100, 100);
     glutCreateWindow(argv[0]);
-    init();
+    initScene();
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutMouseFunc(mouse);

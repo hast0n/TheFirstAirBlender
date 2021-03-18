@@ -24,6 +24,6 @@ private:
 
 	void compute_camera_to_world_matrix();
 	
-	Vector3f screen_space_to_world_space(unsigned x, unsigned y);
+	Vector3f to_world_space(unsigned x, unsigned y);
 };
 

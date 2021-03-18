@@ -27,7 +27,7 @@ void RayTracer::Render()
 			unsigned char A = 255;
 
 			// TODO: 1. Get screen pixel position in world
-			Vector3f pixel_pos = screen_space_to_world_space(x, y);
+			Vector3f pixel_pos = to_world_space(x, y);
 
 			// TODO: 2. Cast ray from camera origin through pixel position
 
@@ -92,10 +92,22 @@ void RayTracer::compute_camera_to_world_matrix()
 	// _camera_to_world_matrix = inv(world_to_camera_matrix);
 }
 
-Vector3f RayTracer::screen_space_to_world_space(unsigned x, unsigned y)
+Vector3f RayTracer::to_world_space(unsigned x, unsigned y)
 {
+	// X, Y, Z coordinates into camera space
+
+	
+	
+	//Vector3f camera_space_pixel = Vector3f(
+	//	, 
+	//	, 
+	//	_scene.Camera->getZNear()
+	//);
+
 	// transform x, y, z coordinates using camera_to_world_matrix
 	// z is camera position + zNear
+
+	
 	
 	return Vector3f();
 }

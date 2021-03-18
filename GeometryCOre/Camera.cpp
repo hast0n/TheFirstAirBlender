@@ -2,6 +2,19 @@
 #include "windows.h"
 #include "gl/GLU.h"
 
+void Camera::set_up_vector()
+{
+	Vector3f forw = getForwardAxis();
+	
+	_up_vector = Vector3f(
+		- forw.X * forw.Y,
+		forw.X * forw.X + forw.Z * forw.Z,
+		- forw.Y * forw.Z
+	);
+}
+
+
+
 Camera::Camera()
 {
 	_position.Z = 1;
@@ -14,6 +27,9 @@ Camera::Camera()
 	_zFar = 100.0f;
 }
 
+
+
+
 void Camera::RotateTo(const Vector3f& vect)
 {
 	_up_vector = vect;
@@ -24,19 +40,24 @@ void Camera::Rotate(const Vector3f& vect)
 	_up_vector += vect;
 }
 
-void Camera::SetPosition(const Vector3f& vect)
-{
-	_position = vect;
-}
-
 void Camera::Translate(const Vector3f& vect)
 {
 	_position += vect;
 }
 
+
+
+
+void Camera::SetPosition(const Vector3f& vect)
+{
+	_position = vect;
+	set_up_vector();
+}
+
 void Camera::SetTarget(const Vector3f& vect)
 {
 	_target = vect;
+	set_up_vector();
 }
 
 void Camera::SetFOV(float fov)
@@ -54,6 +75,9 @@ void Camera::SetZPlanes(float zNear, float zFar)
 	_zNear = zNear;
 	_zFar = zFar;
 }
+
+
+
 
 void Camera::ResetPosition()
 {
@@ -82,7 +106,32 @@ void Camera::GL_Init() const
 	);
 }
 
-Vector3f Camera::getPosition() const
+
+
+
+float Camera::getFOV() const {return _fov;}
+
+float Camera::getAspectRatio() const {return _aspect_ratio;}
+
+float Camera::getZNear() const {return _zNear;}
+
+float Camera::getZFar() const {return _zFar;}
+
+Vector3f Camera::getPosition() const {return _position;}
+
+Vector3f Camera::getTarget() const {return _target;}
+
+Vector3f Camera::getForwardAxis() const
 {
-	return Vector3f(_position.X, _position.Y, _position.Z);
+	return - Vector3f(_position - _target).normalize();
+}
+
+Vector3f Camera::getRightAxis() const
+{
+	return Vector3f(getForwardAxis() ^ _up_vector).normalize();
+}
+
+Vector3f Camera::getUpAxis() const
+{
+	return _up_vector.normalize();
 }

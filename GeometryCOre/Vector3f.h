@@ -1,7 +1,8 @@
 #pragma once
+#include <string>
 
-struct Vector3f {
-
+struct Vector3f
+{
 	float X;
 	float Y;
 	float Z;
@@ -25,4 +26,8 @@ struct Vector3f {
 	Vector3f&  operator=( const Vector3f& v2)=default;
 	
 	Vector3f operator^(const Vector3f& v2) const;
+	
+	Vector3f normalize() const;
 };
+
+std::ostream& operator<<(std::ostream& out, Vector3f v);
