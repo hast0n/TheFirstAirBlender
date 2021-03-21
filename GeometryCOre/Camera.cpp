@@ -29,7 +29,6 @@ Camera::Camera()
 
 
 
-
 void Camera::RotateTo(const Vector3f& vect)
 {
 	_up_vector = vect;

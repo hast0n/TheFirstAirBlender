@@ -1,7 +1,5 @@
 #include "RayTracer.h"
-
 #include <string>
-
 #include "PNGExporter.h"
 
 RayTracer::RayTracer(Scene scene, unsigned pixelWidth, unsigned pixelHeight)
@@ -45,8 +43,6 @@ void RayTracer::Render()
 
 void RayTracer::compute_camera_to_world_matrix()
 {
-	float world_to_camera_matrix[16] {};
-	
 	// World to camera matrix be like :
 	// 
 	//	M00  M01  M02  tx
@@ -58,38 +54,35 @@ void RayTracer::compute_camera_to_world_matrix()
 	// t is the position transformation vector
 	// the 4th line is the homogeneous part (whatever)
 	// https://stackoverflow.com/questions/695043/how-does-one-convert-world-coordinates-to-camera-coordinates
-	
+
+
+	const Vector3f rightAxis = _scene.Camera->getRightAxis();
+	const Vector3f upAxis = _scene.Camera->getUpAxis();
+	const Vector3f forwardAxis = _scene.Camera->getForwardAxis();
+	const Vector3f cameraPos = _scene.Camera->getPosition();
 	
 	// Rotation sub-matrix
-	Vector3f camera_world_roll;
-	Vector3f camera_world_pitch;
-	Vector3f camera_world_yaw;
-	
-	world_to_camera_matrix[0]  = camera_world_roll.X;
-	world_to_camera_matrix[1]  = camera_world_roll.Y;
-	world_to_camera_matrix[2]  = camera_world_roll.Z;
-	world_to_camera_matrix[4]  = camera_world_pitch.X;
-	world_to_camera_matrix[5]  = camera_world_pitch.Y;
-	world_to_camera_matrix[6]  = camera_world_pitch.Z;
-	world_to_camera_matrix[8]  = camera_world_yaw.X;
-	world_to_camera_matrix[9]  = camera_world_yaw.Y;
-	world_to_camera_matrix[10] = camera_world_yaw.Z;
+	_world_to_camera_matrix.setValue(0, 0, rightAxis.X);
+	_world_to_camera_matrix.setValue(0, 1, rightAxis.Y);
+	_world_to_camera_matrix.setValue(0, 2, rightAxis.Z);
+	_world_to_camera_matrix.setValue(1, 0, upAxis.X);
+	_world_to_camera_matrix.setValue(1, 1, upAxis.Y);
+	_world_to_camera_matrix.setValue(1, 2, upAxis.Z);
+	_world_to_camera_matrix.setValue(2, 0, forwardAxis.X);
+	_world_to_camera_matrix.setValue(2, 1, forwardAxis.Y);
+	_world_to_camera_matrix.setValue(2, 2, forwardAxis.Z);
 
 	// position vector
-	Vector3f camera_world_pos = _scene.Camera->getPosition();
-	
-	world_to_camera_matrix[3]  = - camera_world_pos.X;
-	world_to_camera_matrix[7]  = - camera_world_pos.Y;
-	world_to_camera_matrix[11] = - camera_world_pos.Z;
+	_world_to_camera_matrix.setValue(0, 3, - cameraPos.X);
+	_world_to_camera_matrix.setValue(1, 3, - cameraPos.Y);
+	_world_to_camera_matrix.setValue(2, 3, - cameraPos.Z);
 
 	// homogeneous part
-	// array initialization set values to 0.0f
-	world_to_camera_matrix[15] = 0;
+	_world_to_camera_matrix.setValue(3, 3, 0);
 
 	// invert matrix
-	// TODO: find a way to invert matrix
+	_camera_to_world_matrix = _world_to_camera_matrix.getInverse();
 
-	// _camera_to_world_matrix = inv(world_to_camera_matrix);
 }
 
 Vector3f RayTracer::to_world_space(unsigned x, unsigned y)
@@ -109,7 +102,7 @@ Vector3f RayTracer::to_world_space(unsigned x, unsigned y)
 
 	
 	
-	return Vector3f();
+	return Vector3f(0,0,0);
 }
 
 void RayTracer::RenderAndSave(std::string file_path)

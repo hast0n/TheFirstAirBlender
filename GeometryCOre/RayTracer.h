@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+
+#include "FloatMatrix4.h"
 #include "Scene.h"
 
 class RayTracer
@@ -11,7 +13,8 @@ class RayTracer
 	unsigned int _width;
 	unsigned int _height;
 
-	float _camera_to_world_matrix[16] {};
+	FloatMatrix4 _camera_to_world_matrix;
+	FloatMatrix4 _world_to_camera_matrix;
 
 public:
 	RayTracer(Scene scene, unsigned int pixelWidth, unsigned int pixelHeight);

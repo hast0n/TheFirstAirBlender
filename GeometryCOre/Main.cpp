@@ -2,6 +2,8 @@
 #include <glut.h>
 #include <iostream>
 #include "Cube.h"
+#include "FloatMatrix3.h"
+#include "FloatMatrix4.h"
 #include "Sphere.h"
 #include "Plane.h"
 #include "Scene.h"
@@ -39,8 +41,7 @@ void initScene()
 	scene.Add(plane1);
 
 	// Camera's default perspective is ok here
-	scene.Camera->SetPosition(Vector3f(0.0f, 1.0f, 2.0f));
-	scene.Camera->RotateTo(Vector3f(0.0f, 2.0f, -1.8f));	
+	scene.Camera->SetPosition(Vector3f(0.0f, 1.0f, 3.0f));
 	scene.Camera->SetTarget(Vector3f(0.0f, 0.0f, 0.0f));
 }
 
@@ -111,14 +112,42 @@ void rtTest()
 {
 	int width = 10;
 	int height = 10;
-	
-	RayTracer rt = RayTracer(scene, width, height);
-	// rt.Render();
 
-	std::cout << scene.Camera->getForwardAxis() << std::endl;
-	std::cout << scene.Camera->getUpAxis() << std::endl;
-	std::cout << scene.Camera->getRightAxis() << std::endl;
-	
+	//auto b = FloatMatrix3();
+	//
+	//for (int k = 0; k < 9; ++k)
+	//{
+	//	b.setValue((int)k/3, k%3, k+1);
+	//}
+	//b.setValue(0, 0, 2);
+	//b.setValue(0, 1, 1);
+	//
+	//std::cout << "Matrice A :" << std::endl << b << std::endl;
+	//std::cout << "Det(A) = " << std::endl << b.getDeterminant() << std::endl;
+	//
+	//return;
+	//
+	//
+	//
+	//for (int k = 0; k < 16; ++k)
+	//{
+	//	a.setValue((int)k/4, k%4, k+1);
+	//}
+	//
+	//auto a = FloatMatrix4();
+	//float buffer[16] {
+	//	1, 2, 1, 1,
+	//	2, 1, 0, 0,
+	//	0, 0, 1, 0,
+	//	0, 0, 0, 1
+	//};
+	//a.tempSet(buffer);
+	//std::cout << "Matrice A :" << std::endl << a << std::endl;
+	//std::cout << "Det(A) = " << a.getDeterminant() << std::endl;
+	//std::cout << "Inverse A :" << std::endl << a.getInverse() << std::endl;
+
+	RayTracer rt = RayTracer(scene, width, height);
+	rt.Render();
 }
 
 void glTest(int argc, char** argv)
@@ -150,7 +179,7 @@ int main(int argc, char** argv)
 {
 	initScene();
 	
-	// glTest(argc, argv);
+	//glTest(argc, argv);
 	
 	rtTest();
 	

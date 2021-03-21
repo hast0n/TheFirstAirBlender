@@ -156,6 +156,8 @@
   <ItemGroup>
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="FloatMatrix3.cpp" />
+    <ClCompile Include="FloatMatrix4.cpp" />
     <ClCompile Include="GLErrorHandler.cpp" />
     <ClCompile Include="GraphicObject.cpp" />
     <ClCompile Include="lodepng.cpp" />
@@ -171,6 +173,8 @@
   <ItemGroup>
     <ClInclude Include="Cube.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="FloatMatrix3.h" />
+    <ClInclude Include="FloatMatrix4.h" />
     <ClInclude Include="GLErrorHandler.h" />
     <ClInclude Include="GraphicObject.h" />
     <ClInclude Include="lodepng.h" />
