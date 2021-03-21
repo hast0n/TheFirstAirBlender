@@ -1,4 +1,6 @@
 #include "RayTracer.h"
+
+#include <iostream>
 #include <string>
 #include "PNGExporter.h"
 
@@ -88,21 +90,22 @@ void RayTracer::compute_camera_to_world_matrix()
 Vector3f RayTracer::to_world_space(unsigned x, unsigned y)
 {
 	// X, Y, Z coordinates into camera space
+	float zNear = _scene.Camera->getZNear();
+	float fov = _scene.Camera->getFOV();
+	float ar = _scene.Camera->getAspectRatio();
+	
+	float raster_space_width = 2 * zNear * std::sin(fov/2);
+	float raster_space_height = raster_space_width / ar;
 
-	
-	
-	//Vector3f camera_space_pixel = Vector3f(
-	//	, 
-	//	, 
-	//	_scene.Camera->getZNear()
-	//);
+	float x_unit = raster_space_width / this->_width;
+	float y_unit = raster_space_height / this->_height;
 
-	// transform x, y, z coordinates using camera_to_world_matrix
-	// z is camera position + zNear
+	float newX = - (raster_space_width / 2) + (x_unit * x);
+	float newY = (raster_space_height / 2) - (y_unit * y);
 
-	
-	
-	return Vector3f(0,0,0);
+	std::cout << Vector3f(newX, newY, - zNear) << std::endl;
+	//return _camera_to_world_matrix * Vector3f(newX, newY, - zNear);
+	return Vector3f(newX, newY, - zNear);
 }
 
 void RayTracer::RenderAndSave(std::string file_path)
