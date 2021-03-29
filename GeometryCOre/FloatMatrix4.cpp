@@ -141,7 +141,7 @@ Vector3f FloatMatrix4::operator*(const Vector3f vect) const // right side mult (
 		newArray[i] = sum;		
 	}
 	
-	return Vector3f(newArray[0], newArray[1], newArray[2]); // / vectArray[3];
+	return Vector3f(newArray[0], newArray[1], newArray[2]) / vectArray[3];
 }
 
 FloatMatrix4 FloatMatrix4::operator/(float value) const
