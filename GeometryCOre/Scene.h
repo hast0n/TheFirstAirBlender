@@ -10,7 +10,7 @@ class Scene
 public:
 	Camera* Camera;
 	
-	GraphicObject* graphic_object_array[10]{};
+	GraphicObject* graphic_object_array[100]{};
 
 	Vector3f BackgroundColor = Vector3f(0.26f, 0.26f, 0.26f);
 

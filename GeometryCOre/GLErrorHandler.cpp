@@ -1,15 +1,24 @@
 #include "GLErrorHandler.h"
 
-// specific to MSVC
-#define ASSERT(x) if (!(x)) __debugbreak();
-#define GLCall(x) GLErrorHandler::ClearErrors();\
-	x;\
-	ASSERT(GLErrorHandler::CheckErrors())
-
 void GLErrorHandler::ClearErrors()
 {
 	while(glGetError() != GL_NO_ERROR);
 }
+
+bool GLErrorHandler::CheckErrors()
+{
+	auto err = glGetError();
+	const bool result = err == GL_NO_ERROR;
+	
+	while(err != GL_NO_ERROR)
+	{
+		std::cout << err << std::endl;
+		err = glGetError();
+	}
+	
+	return result;
+}
+
 //
 //void GLErrorHandler::CheckErrors( GLenum source,
 //                 GLenum type,

@@ -21,6 +21,10 @@ struct Vector3f
 	float operator*(const Vector3f& v2) const;
 	Vector3f operator*(float scalar) const;
 	void operator*=(float scalar);
+	
+	float operator/(const Vector3f& v2) const;
+	Vector3f operator/(float scalar) const;
+	void operator/=(float scalar);
 
 	bool operator==(const Vector3f& v2) const;
 	Vector3f&  operator=( const Vector3f& v2)=default;

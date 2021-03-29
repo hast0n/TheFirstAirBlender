@@ -7,6 +7,8 @@ Cube::Cube(const Vector3f& cubePosition, float cubeSize)
 	Pos = cubePosition;
 	Size = cubeSize;
 
+	Color = Vector3f(1.0, 0.0, 1.0);
+
 	GenerateVertexBuffers();
 	LogInit();
 }
@@ -76,9 +78,7 @@ void Cube::GLRenderWireframe(const Vector3f& wireColor) const
 
 void Cube::GLRender() const
 {
-	if (this->Color == Vector3f(NULL, NULL, NULL))
-		GLRenderFaces(Vector3f(1.0, 0.0, 1.0));
-	else GLRenderFaces(this->Color);
+	GLRenderFaces(this->Color);
 
 	GLRenderWireframe(Vector3f(1.0, 0.0, 0.0));
 }

@@ -7,7 +7,7 @@
 
 class RayTracer
 {
-	Scene _scene;
+	Scene* _scene;
 
 	unsigned char* _buffer;
 	unsigned int _width;
@@ -17,7 +17,7 @@ class RayTracer
 	FloatMatrix4 _world_to_camera_matrix;
 
 public:
-	RayTracer(Scene scene, unsigned int pixelWidth, unsigned int pixelHeight);
+	RayTracer(Scene* scene, unsigned int pixelWidth, unsigned int pixelHeight);
 	
 	void Render();
 
@@ -27,6 +27,6 @@ private:
 
 	void compute_camera_to_world_matrix();
 	
-	Vector3f to_world_space(unsigned x, unsigned y);
+	Vector3f raster_to_world_space(unsigned x, unsigned y);
 };
 

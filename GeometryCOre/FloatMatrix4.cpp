@@ -1,5 +1,20 @@
 #include "FloatMatrix4.h"
+
+#include <iostream>
+
 #include "FloatMatrix3.h"
+
+FloatMatrix4::FloatMatrix4(const float buffer[16])
+{
+	for (int k = 0; k < 16; ++k)
+	{
+		float value = buffer[k];
+		int i = (int)(k / 4);
+		int j = k % 4;
+
+		this->setValue(i, j, value);
+	}
+}
 
 FloatMatrix4 FloatMatrix4::getTranspose() const
 {
@@ -31,7 +46,7 @@ float FloatMatrix4::getDeterminant() const
 	
 	for (int i = 0; i < 4; ++i)
 	{
-		det += getCofactor(i, 0);
+		det += getValue(i, 0) * getCofactor(i, 0);
 	}
 
 	return det;
@@ -97,6 +112,38 @@ void FloatMatrix4::setValue(int i, int j, float value)
 	_buffer[i * 4 + j] = value;
 }
 
+void FloatMatrix4::toFloatArray(float* buffer) const
+{
+	for (int i = 0; i < 16; ++i)
+	{
+		buffer[i] = _buffer[i];
+	}
+}
+
+
+
+Vector3f FloatMatrix4::operator*(const Vector3f vect) const // right side mult (4x4.4x1 -> 4x1)
+{
+	float sum;
+
+	float vectArray[4] = {vect.X, vect.Y, vect.Z, 1};
+	float newArray[4] = {0, 0, 0, 0};
+	
+	for (int i = 0; i < 4; ++i)
+	{
+		sum = 0;
+
+		for (int j = 0; j < 4; ++j)
+		{
+			sum += this->getValue(i, j) * vectArray[j];
+		}
+
+		newArray[i] = sum;		
+	}
+	
+	return Vector3f(newArray[0], newArray[1], newArray[2]); // / vectArray[3];
+}
+
 FloatMatrix4 FloatMatrix4::operator/(float value) const
 {
 	auto m =  FloatMatrix4();
@@ -111,6 +158,29 @@ FloatMatrix4 FloatMatrix4::operator/(float value) const
 	}
 
 	return m;
+}
+
+FloatMatrix4 FloatMatrix4::operator*(const FloatMatrix4 mat) const
+{
+	float sum;
+	FloatMatrix4 result = FloatMatrix4();
+
+	for (int k = 0; k < 4; ++k)
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			sum = 0;
+
+			for (int j = 0; j < 4; ++j)
+			{
+				sum += this->getValue(i, j) * mat.getValue(j, k);
+			}
+
+			result.setValue(i, k, sum);
+		}		
+	}
+
+	return result;
 }
 
 std::ostream& operator<<(std::ostream& out, FloatMatrix4 m)

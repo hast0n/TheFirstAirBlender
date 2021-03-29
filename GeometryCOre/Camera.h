@@ -1,5 +1,6 @@
 #pragma once
 #include "Vector3f.h"
+#include "FloatMatrix4.h"
 
 class Camera
 {
@@ -13,16 +14,32 @@ class Camera
 	float _zNear;
 	float _zFar;
 
+	// around Z-axis
+	float _roll;
+	
+	// around X-axis
+	float _pitch;
+	
+	// around Y-axis
+	float _yaw;
+
+	FloatMatrix4 _state;
+	
 	void set_up_vector();
+
+	FloatMatrix4 get_roll_matrix(float angle) const;
+	FloatMatrix4 get_pitch_matrix(float angle) const;
+	FloatMatrix4 get_yaw_matrix(float angle) const;
 
 public:
 	Camera();
 
 	~Camera() = default;
 
-	void Rotate(const Vector3f& vect);
+	// Add pitch, yaw and roll (X, Y, Z - unit is °)
+	void Rotate(float pitch, float yaw, float roll);
 
-	void RotateTo(const Vector3f& vect);
+	//void RotateTo(const Vector3f& vect);
 	
 	void Translate(const Vector3f& vect);
 
@@ -45,7 +62,9 @@ public:
 	void ResetRotation();
 
 	// TODO: namespaces 3DCore --|> OpenGL
-	void GL_Init() const;
+	void GL_LoadState() const;
+
+	void GL_LoadPerspective() const;
 
 
 	
@@ -57,13 +76,17 @@ public:
 
 	float getZFar() const;
 
+	FloatMatrix4 getState() const;
+
 	Vector3f getPosition() const;
 	
 	Vector3f getTarget() const;
 	
-	Vector3f getForwardAxis() const;
+	Vector3f getSightAxis() const;
 	
 	Vector3f getRightAxis() const;
 
 	Vector3f getUpAxis() const;
+
+	Vector3f getZAxis() const;
 };

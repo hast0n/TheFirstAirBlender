@@ -29,9 +29,14 @@ void Scene::Init()
 
 void Scene::GL_Draw()
 {
-	if (_camera_modified) this->Camera->GL_Init();
+	if (_camera_modified)
+	{
+		this->Camera->GL_LoadPerspective();
+		this->Camera->GL_LoadState();
+		_camera_modified = false;
+	}
 	
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < _nbGraphicObject; i++)
 	{
 		GraphicObject* obj = graphic_object_array[i];
 

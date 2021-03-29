@@ -3,6 +3,7 @@
 #include "Logger.h"
 #include <iostream>
 
+
 class GLErrorHandler
 {
 public:
@@ -11,3 +12,9 @@ public:
 	static bool CheckErrors();
 };
 
+// specific to MSVC
+#define ASSERT(x) if (!(x)) __debugbreak();
+#define GLCall(x) x;\
+	ASSERT(GLErrorHandler::CheckErrors());
+
+//GLErrorHandler::ClearErrors();\

@@ -75,6 +75,27 @@ void Vector3f::operator*=(float scalar)
 	Z *= scalar;
 }
 
+float Vector3f::operator/(const Vector3f& v2) const
+{
+	return X / v2.X + Y / v2.Y + Z / v2.Z;
+}
+
+Vector3f Vector3f::operator/(float scalar) const
+{
+		return Vector3f(
+		scalar / X,
+		scalar / Y,
+		scalar / Z
+	);
+}
+
+void Vector3f::operator/=(float scalar)
+{
+	X /= scalar;
+	Y /= scalar;
+	Z /= scalar;
+}
+
 bool Vector3f::operator==(const Vector3f& v2) const
 {
 	return
