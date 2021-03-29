@@ -13,11 +13,6 @@ Cube::Cube(const Vector3f& cubePosition, float cubeSize)
 	LogInit();
 }
 
-void Cube::SetColor(const Vector3f& color)
-{
-	Color = color;
-}
-
 void Cube::Move(const Vector3f& vect3)
 {
 	// TODO: use matrix states instead
@@ -81,6 +76,11 @@ void Cube::GLRender() const
 	GLRenderFaces(this->Color);
 
 	GLRenderWireframe(Vector3f(1.0, 0.0, 0.0));
+}
+
+bool Cube::Intersects(const Ray& ray, Vector3f* intersect)
+{
+	return false;
 }
 
 void Cube::LogInit()

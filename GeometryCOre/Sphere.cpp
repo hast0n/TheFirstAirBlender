@@ -8,11 +8,6 @@ Sphere::Sphere(const Vector3f& center, float radius)
 	Radius = radius;
 }
 
-void Sphere::SetColor(const Vector3f& color)
-{
-	Color = color;
-}
-
 void Sphere::Move(const Vector3f& vect3)
 {
 	this->Pos += vect3;
@@ -54,6 +49,38 @@ void Sphere::GLRender() const
 	else GLRenderFill(this->Color);
 
 	GLRenderWireframe(Vector3f(1.0, 0.0, 0.0));
+}
+
+bool Sphere::Intersects(const Ray& ray, Vector3f* intersect)
+{
+    float t0, t1; // solutions for t if the ray intersects
+    
+    // geometric solution
+    Vector3f L = Pos - ray.Origin; 
+    float tca = L * ray.Direction;
+    // if (tca < 0) return false;
+    float d2 = L * L - tca * tca;
+	float radius2 = Radius * Radius;
+
+    if (d2 > radius2) 
+		return false; 
+
+	float thc = sqrt(radius2 - d2); 
+    t0 = tca - thc; 
+    t1 = tca + thc; 
+
+    if (t0 > t1) std::swap(t0, t1); 
+
+    if (t0 < 0) { 
+        t0 = t1; // if t0 is negative, let's use t1 instead 
+
+    	if (t0 < 0) 
+			return false; // both t0 and t1 are negative 
+    } 
+
+    *intersect = ray.Origin + ray.Direction * t0; 
+
+    return true;
 }
 
 void Sphere::GLAddToDisplayList() const

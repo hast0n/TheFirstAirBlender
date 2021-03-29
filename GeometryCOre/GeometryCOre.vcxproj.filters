@@ -69,6 +69,12 @@
     <ClCompile Include="FloatMatrix3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Ray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BoundingBox3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Logger.h">
@@ -107,11 +113,17 @@
     <ClInclude Include="lodepng.h">
       <Filter>Header Files\RayTracing</Filter>
     </ClInclude>
-    <ClInclude Include="FloatMatrix4.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="BoundingBox3.h">
+      <Filter>Header Files\Core3D</Filter>
     </ClInclude>
     <ClInclude Include="FloatMatrix3.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Core3D</Filter>
+    </ClInclude>
+    <ClInclude Include="FloatMatrix4.h">
+      <Filter>Header Files\Core3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Ray.h">
+      <Filter>Header Files\Core3D</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

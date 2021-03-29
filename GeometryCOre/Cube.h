@@ -6,13 +6,11 @@ class Cube : public GraphicObject
 {
 public:
 	Vector3f Pos;
-	Vector3f Color;
 	float Size;
 
 	~Cube() {}
 	Cube(const Vector3f& cubePosition, float cubeSize);
 
-	void SetColor(const Vector3f& color) override;
 	void Move(const Vector3f& vect3) override;
 	void Scale(const float factor) override;
 
@@ -21,6 +19,7 @@ public:
 	void GLRenderFaces(const Vector3f& faceColor) const;
 	void GLRenderWireframe(const Vector3f& wireColor) const;
 	void GLRender() const override;
+	bool Intersects(const Ray& ray, Vector3f* intersect) override;
 
 private:
 	Vector3f* _vertexBuffer[8];

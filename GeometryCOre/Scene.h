@@ -4,13 +4,13 @@
 
 class Scene
 {
-	int _nbGraphicObject = 0;
 	bool _camera_modified = true;
 	
 public:
 	Camera* Camera;
 	
 	GraphicObject* graphic_object_array[100]{};
+	int nbGraphicObject = 0;
 
 	Vector3f BackgroundColor = Vector3f(0.26f, 0.26f, 0.26f);
 
@@ -22,4 +22,14 @@ public:
 	void Init();
 
 	void GL_Draw();
+	
+	void GL_Init();
+
+	//void Delete(GraphicObject* ptr);
+
+	void Delete(int index);
+
+	int getGraphicObjectNumber() const;
+	
+	GraphicObject* getGraphicObject(int i);
 };

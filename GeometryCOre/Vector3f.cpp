@@ -123,8 +123,13 @@ Vector3f Vector3f::operator^(const Vector3f& v2) const // Produit vectoriel (nor
 
 Vector3f Vector3f::normalize() const
 {
-	float length = sqrt((X * X) + (Y * Y) + (Z * Z));
+	float length = this->length();
 	return Vector3f(X / length, Y / length, Z / length);
+}
+
+float Vector3f::length() const
+{
+	return sqrt((X * X) + (Y * Y) + (Z * Z));
 }
 
 std::ostream& operator<<(std::ostream& out, Vector3f v)

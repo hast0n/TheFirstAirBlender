@@ -24,7 +24,7 @@ class Camera
 	float _yaw;
 
 	FloatMatrix4 _state;
-	
+
 	void set_up_vector();
 
 	FloatMatrix4 get_roll_matrix(float angle) const;
@@ -38,8 +38,6 @@ public:
 
 	// Add pitch, yaw and roll (X, Y, Z - unit is °)
 	void Rotate(float pitch, float yaw, float roll);
-
-	//void RotateTo(const Vector3f& vect);
 	
 	void Translate(const Vector3f& vect);
 
@@ -61,6 +59,10 @@ public:
 
 	void ResetRotation();
 
+	void CleanState();
+
+
+	
 	// TODO: namespaces 3DCore --|> OpenGL
 	void GL_LoadState() const;
 

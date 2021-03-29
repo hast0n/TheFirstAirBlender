@@ -14,10 +14,10 @@ Plane::Plane(const Vector3f& center, float planeSize)
 //	
 //}
 
-void Plane::SetColor(const Vector3f& color)
-{
-	Color1 = color;
-}
+//void Plane::SetColor(const Vector3f& color)
+//{
+//	Color1 = color;
+//}
 
 void Plane::SetColors(const Vector3f& color1, const Vector3f& color2)
 {
@@ -66,6 +66,11 @@ void Plane::GLRenderWireframe(const Vector3f& wireColor) const
 void Plane::GLRender() const
 {
 	GLRenderFill(this->Color1);
+}
+
+bool Plane::Intersects(const Ray& ray, Vector3f* intersect)
+{
+	return false;
 }
 
 void Plane::GenerateVertexBuffer()

@@ -68,21 +68,13 @@ Camera::Camera()
 	_aspect_ratio = 1.0f;
 
 	_zNear = 0.1f;
-	_zFar = 100.0f;
+	_zFar = 10.0f;
 
 	_roll = 0;
 	_pitch = 0;
 	_yaw = 0;
 
-	float state_buffer[16] =
-	{
-		1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
-	};
-
-	_state = FloatMatrix4(state_buffer);
+	CleanState();
 }
 
 
@@ -99,17 +91,20 @@ void Camera::Rotate(float pitch, float yaw, float roll)
 void Camera::Translate(const Vector3f& vect)
 {
 	//_position += vect;
-	_state.setValue(0, 3, -vect.X);
-	_state.setValue(1, 3, -vect.Y);
-	_state.setValue(2, 3, -vect.Z);
+	_state.setValue(0, 3, _state.getValue(0, 3) + vect.X);
+	_state.setValue(1, 3, _state.getValue(1, 3) + vect.Y);
+	_state.setValue(2, 3, _state.getValue(2, 3) + vect.Z);
 }
 
 
 
 void Camera::SetPosition(const Vector3f& vect)
 {
-	_position = vect;
-	set_up_vector();
+	//_position = vect;
+	//set_up_vector();
+	_state.setValue(0, 3, vect.X);
+	_state.setValue(1, 3, vect.Y);
+	_state.setValue(2, 3, vect.Z);
 }
 
 void Camera::SetTarget(const Vector3f& vect)
@@ -146,22 +141,29 @@ void Camera::ResetRotation()
 	//this->RotateTo(Vector3f(0.0f, 1.0f, 0.0f));
 }
 
+void Camera::CleanState()
+{
+	float state_buffer[16] =
+	{
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	};
+
+	_state = FloatMatrix4(state_buffer);
+}
+
 void Camera::GL_LoadState() const
 {
 	GLfloat* buffer = new GLfloat[16];
-	_state.getTranspose().toFloatArray(buffer); // OpenGL is column-major
-
-	std::cout << _state << std::endl;
+	
+	_state.getTranspose().toFloatArray(buffer); // transpose because OpenGL is column-major
 	
 	glMatrixMode(GL_MODELVIEW);
 
+	glLoadIdentity();
 	glMultMatrixf(buffer);
-
-	glTranslatef(
-		-_position.X, 
-		-_position.Y, 
-		-_position.Z
-	);
 	
 	delete[] buffer;
 	
@@ -181,6 +183,8 @@ void Camera::GL_LoadState() const
 
 void Camera::GL_LoadPerspective() const
 {
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
 	gluPerspective(_fov, _aspect_ratio, _zNear, _zFar);
 }
 
@@ -196,7 +200,14 @@ float Camera::getZFar() const {return _zFar;}
 
 FloatMatrix4 Camera::getState() const {return _state;}
 
-Vector3f Camera::getPosition() const {return _position;}
+Vector3f Camera::getPosition() const
+{
+	return Vector3f(
+		_state.getValue(0, 3),
+		_state.getValue(1, 3),
+		_state.getValue(2, 3)
+	);
+}
 
 Vector3f Camera::getTarget() const {return _target;}
 

@@ -11,32 +11,43 @@
 #include "PNGExporter.h"
 #include "RayTracer.h"
 
-Scene* scene = new Scene();
-int* prevX = new int(NULL);
-int* prevY = new int(NULL);
+static int width  = 512;
+static int height = width; //square;
+static int ctr = 0;
+
+static Scene* scene = new Scene();
+static RayTracer rt = RayTracer(scene, width, height);
+
+static int* prevX = new int(NULL);
+static int* prevY = new int(NULL);
 
 void initScene()
 {
-	Cube* cube1 = new Cube(Vector3f(0.0f, 0.0f, -1.0f), .5); // front rouge
-	Cube* cube2 = new Cube(Vector3f(1.0f, 0.0f, 0.0f), .5); // right vert
-	Cube* cube3 = new Cube(Vector3f(0.0f, 0.0f, 1.0f), .5); // back bleu
-	Cube* cube4 = new Cube(Vector3f(-1.0f, 0.0f, 0.0f), .5); // left jaune
-	Cube* cube5 = new Cube(Vector3f(0.0f, 1.0f, 0.0f), .5); // top cyan
-	Cube* cube6 = new Cube(Vector3f(0.0f, -1.0f, 0.0f), .5); // bottom violet
+	scene->Camera->SetFOV(60.0f);
+	scene->Camera->SetPosition(Vector3f(0.0f, 0.0f, 2.0f));
+	scene->Camera->Rotate(0, 180, 0);
+	//scene->Camera->SetTarget(Vector3f(0.0f, 0.0f, -10.0f));
 
-	cube1->SetColor(Vector3f(1, 0, 0)); // rouge
-	cube2->SetColor(Vector3f(0, 1, 0)); // vert
-	cube3->SetColor(Vector3f(0, 0, 1)); // bleu
-	cube4->SetColor(Vector3f(1, 1, 0)); // jaune
-	cube5->SetColor(Vector3f(0, 1, 1)); // cyan
-	cube6->SetColor(Vector3f(1, 0, 1)); // violet
-	
-	scene->Add(cube1);
-	scene->Add(cube2);
-	scene->Add(cube3);
-	scene->Add(cube4);
-	scene->Add(cube5);
-	scene->Add(cube6);
+	//Cube* cube1 = new Cube(Vector3f(0.0f, 0.0f, -1.0f), .1); // front rouge
+	//Cube* cube2 = new Cube(Vector3f(1.0f, 0.0f, 0.0f), .1); // right vert
+	//Cube* cube3 = new Cube(Vector3f(0.0f, 0.0f, 1.0f), .1); // back bleu
+	//Cube* cube4 = new Cube(Vector3f(-1.0f, 0.0f, 0.0f), .1); // left jaune
+	//Cube* cube5 = new Cube(Vector3f(0.0f, 1.0f, 0.0f), .1); // top cyan
+	//Cube* cube6 = new Cube(Vector3f(0.0f, -1.0f, 0.0f), .1); // bottom violet
+
+	//cube1->SetColor(Vector3f(1, 0, 0)); // rouge
+	//cube2->SetColor(Vector3f(0, 1, 0)); // vert
+	//cube3->SetColor(Vector3f(0, 0, 1)); // bleu
+	//cube4->SetColor(Vector3f(1, 1, 0)); // jaune
+	//cube5->SetColor(Vector3f(0, 1, 1)); // cyan
+	//cube6->SetColor(Vector3f(1, 0, 1)); // violet
+	//
+	//scene->Add(cube1);
+	//scene->Add(cube2);
+	//scene->Add(cube3);
+	//scene->Add(cube4);
+	//scene->Add(cube5);
+	//scene->Add(cube6);
 	
 	//Cube* cube1 = new Cube(Vector3f(-0.0f, 0.0f, -1.0f), 0.05);
 	//cube1->SetColor(Vector3f(0.583f, 0.771f, 0.014f));
@@ -50,24 +61,19 @@ void initScene()
 	//cube3->SetColor(Vector3f(0.053f, 0.959f, 0.120f));
 	//scene->Add(cube3);
 
-	//Sphere* sphere1 = new Sphere(Vector3f(0, 0, 0), 0.6f);
-	//sphere1->SetColor(Vector3f(0.0, 1.0, 0.0));
-	//scene->Add(sphere1);
+	
+	Sphere* sphere1 = new Sphere(Vector3f(0.2, 0, -1), 0.2f);
+	sphere1->SetColor(Vector3f(0.0, 1.0, 0.0));
+	scene->Add(sphere1);
 
-	//Sphere* sphere2 = new Sphere(Vector3f(2, 0, -3), 1.0f);
-	//sphere2->SetColor(Vector3f(1.0f, 1.0f, 1.0f));
-	//scene->Add(sphere2);
+	Sphere* sphere2 = new Sphere(Vector3f(-0.2, 0, -1), 0.2f);
+	sphere2->SetColor(Vector3f(1.0, 0.0, 0.0));
+	scene->Add(sphere2);
 
 	//Plane* plane1 = new Plane(Vector3f(0.0f, -.5f, 0.0f), 3.0f);
 	//plane1->SetColor(Vector3f(0.0f, 0.0f, 1.0f));
 	//scene->Add(plane1);
 	
-	scene->Camera->SetFOV(60.0f);
-	
-	scene->Camera->SetPosition(Vector3f(0.0f, 0.0f, 0.0f));
-	//scene->Camera->Rotate(0, 0, 0);
-
-	//scene->Camera->SetTarget(Vector3f(0.0f, 0.0f, -10.0f));
 	
 }
 
@@ -110,35 +116,35 @@ void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	scene->GL_Draw();
-	glFlush();
+	glutSwapBuffers();
 }
 
-static int ctr = 0;
 void keyboard(unsigned char key, int x, int y)
 {
-	ctr = ++ctr % 2;	
 	std::cout << "[KEYBOARD] Key: " << key << ", X: " << x << ", Y: " << y << std::endl;
-	auto m = Vector3f();
+	
+	ctr = ++ctr % 2;	
+	auto t = Vector3f();
 	auto r = Vector3f();
 	
 	switch (key)
 	{
 	case 'z':
-		m.Z = -0.1;
+		t.Z = -0.1;
 		break;
 	case 'q':
-		m.X = -0.1;
+		t.X = -0.1;
 		break;
 	case 's':
-		m.Z = 0.1;
+		t.Z = 0.1;
 		break;
 	case 'd':
-		m.X = 0.1;
+		t.X = 0.1;
 		break;
-	case 'a':
+	case '7':
 		r.Y = -1;
 		break;
-	case 'e':
+	case '9':
 		r.Y = 1;
 		break;
 	case '8':
@@ -154,24 +160,40 @@ void keyboard(unsigned char key, int x, int y)
 		r.Z = -1;
 		break;
 	case 'c':
-		m.Y = -.1;
+		t.Y = -.1;
 		break;
 	case ' ':
-		m.Y = .1;
+		t.Y = .1;
+		break;
+	case 'r':
+		rt.RenderAndSave("./test.png");
 		break;
 	}
 
-	if (ctr) glClearColor(0.10f, 0.10f, 0.10f, 1.0f);
-	else glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	// Validate refresh (simulate flickering)
+	//if (ctr) glClearColor(0.10f, 0.10f, 0.10f, 1.0f);
+	//else glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+	// Apply transform on Camera
 	scene->Camera->Rotate(r.X, r.Y, r.Z);
-	scene->Camera->Translate(m);
-	
+	scene->Camera->Translate(t);
+
+	// Delete rt generated pixel cubes
+	//for (int i = 6; i < scene->getGraphicObjectNumber(); ++i)
+	//{
+	//	scene->Delete(i);
+	//}
+
+	// Apply transform on OpenGL state
 	scene->Camera->GL_LoadState();
 
-	//std::cout << "New position: " << scene->Camera->getPosition() << std::endl;
-	//std::cout << "New target: " << scene->Camera->getTarget() << std::endl;
-	//glFlush();
+	// Compute pixel cube position
+
+	//rt.Render();
+
+	// Revert Camera state back
+	// scene->Camera->CleanState();
+
 	glutPostRedisplay();
 }
 
@@ -198,37 +220,13 @@ void TestRed()
 
 void rtTest() 
 {
-	//float a_buffer[16] = {
-	//	5, 2, 6, 1,
-	//	0, 6, 2, 0,
-	//	3, 8, 1, 4,
-	//	1, 8, 5, 6
-	//};
-	//
-	//float b_buffer[16] = {
-	//	7, 5, 8, 0,
-	//	1, 8, 2, 6,
-	//	9, 4, 3, 8,
-	//	5, 3, 7, 9
-	//};
-	//
-	//auto a = FloatMatrix4(a_buffer);
-	//auto b = FloatMatrix4(b_buffer); //.getInverse();
-	//auto c = a * b;
-	//
-	//std::cout << c << std::endl;
-	
-	int width  = 2;
-	int height = width; //2;
-
-	//RayTracer rt = RayTracer(scene, width, height);
-	//rt.Render();
+	rt.RenderAndSave("./test.png");
 }
 
 void glTest(int argc, char** argv)
 {
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowSize(1000, 1000);
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow(argv[0]);
@@ -247,7 +245,9 @@ void glTest(int argc, char** argv)
 	// Set basic color & shade model
 	auto clrC = scene->BackgroundColor;
 	glClearColor(clrC.X, clrC.Y, clrC.Z, 0.0);
-	GLCall(glShadeModel(GL_FLAT));
+	glShadeModel(GL_FLAT);
+
+	scene->GL_Init();
 	
 	glutMainLoop();	
 }
@@ -256,9 +256,8 @@ int main(int argc, char** argv)
 {
 	initScene();
 	
+	//rtTest();
 	glTest(argc, argv);
-	rtTest();
-	
 	
 	return 0;
 }
