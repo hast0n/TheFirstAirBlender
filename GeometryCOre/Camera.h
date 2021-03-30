@@ -25,7 +25,7 @@ class Camera
 
 	FloatMatrix4 _state;
 
-	void set_up_vector();
+	//void set_up_vector();
 
 	FloatMatrix4 get_roll_matrix(float angle) const;
 	FloatMatrix4 get_pitch_matrix(float angle) const;
@@ -45,7 +45,7 @@ public:
 
 	void SetPosition(const Vector3f& vect);
 
-	void SetTarget(const Vector3f& vect);
+	//void SetTarget(const Vector3f& vect);
 	
 	void SetFOV(float fov);
 
@@ -82,13 +82,13 @@ public:
 
 	Vector3f getPosition() const;
 	
-	Vector3f getTarget() const;
-	
-	Vector3f getSightAxis() const;
-	
-	Vector3f getRightAxis() const;
+	//Vector3f getTarget() const;
+	//
+	//Vector3f getSightAxis() const;
+	//
+	//Vector3f getRightAxis() const;
 
-	Vector3f getUpAxis() const;
+	//Vector3f getUpAxis() const;
 
-	Vector3f getZAxis() const;
+	//Vector3f getZAxis() const;
 };

@@ -21,14 +21,14 @@ float FloatMatrix3::get2x2Determinant(int i, int j) const
 	return subm[0] * subm[3] - subm[1] * subm[2];
 }
 
-void FloatMatrix3::setValue(int i, int j, float value) 
+void FloatMatrix3::setValue(int row, int col, float value) 
 {
-	_buffer[i * 3 + j] = value;
+	_buffer[row * 3 + col] = value;
 }
 
-float FloatMatrix3::getValue(int i, int j) const
+float FloatMatrix3::getValue(int row, int col) const
 {
-	return _buffer[i * 3 + j];
+	return _buffer[row * 3 + col];
 }
 
 float FloatMatrix3::getDeterminant() const

@@ -7,9 +7,9 @@ class FloatMatrix3
 
 	float get2x2Determinant(int i, int j) const;
 public:
-	void setValue(int i, int j, float value);
+	void setValue(int row, int col, float value);
 
-	float getValue (int i, int j) const;
+	float getValue (int row, int col) const;
 
 	float getDeterminant() const;
 

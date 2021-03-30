@@ -1,13 +1,12 @@
 #pragma once
 #include <ostream>
-
 #include "Vector3f.h"
 
 class FloatMatrix4
 {
 	float _buffer[16] {0};
 
-	float getCofactor(int i, int j) const;
+	float getCofactor(int row, int col) const;
 
 
 public:
@@ -29,21 +28,26 @@ public:
 	
 	float getDeterminant() const;
 
-	float getValue(int i, int j) const;
+	float getValue(int row, int col) const;
 	
-	void setValue(int i, int j, float value);
+	void setValue(int row, int col, float value);
 
 
 	void toFloatArray(float* buffer) const;
-
 	
-	//FloatMatrix4 operator*(const FloatMatrix4 mat) const;
 
-	Vector3f operator*(const Vector3f vect) const;
+	Vector3f leftMult(const Vector3f& vect) const;
+
+	Vector3f rightMult(const Vector3f& vect) const;
+	
+	
+	FloatMatrix4 leftMult(const FloatMatrix4& mat) const;
+
+	FloatMatrix4 rightMult(const FloatMatrix4& mat) const;
 
 	FloatMatrix4 operator/(float value) const;
-	
-	FloatMatrix4 operator*(const FloatMatrix4 mat) const;
+
+	void print() const;
 };
 
 std::ostream& operator<<(std::ostream& out, FloatMatrix4 m);

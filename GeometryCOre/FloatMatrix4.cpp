@@ -77,9 +77,9 @@ FloatMatrix4 FloatMatrix4::getAdjoint() const
 //	}
 //}
 
-float FloatMatrix4::getCofactor(int i, int j) const
+float FloatMatrix4::getCofactor(int row, int col) const
 {
-	int sign = (i + j + 2) % 2 ? -1 : 1;
+	int sign = (row + col + 2) % 2 ? -1 : 1;
 
 	auto subm = FloatMatrix3();
 
@@ -87,11 +87,11 @@ float FloatMatrix4::getCofactor(int i, int j) const
 	
 	for (int l = 0; l < 4; ++l)
 	{
-		if (l == i) continue;
+		if (l == row) continue;
 		
 		for (int c = 0; c < 4; ++c)
 		{
-			if (c == j) continue;
+			if (c == col) continue;
 
 			subm.setValue((int)index/3, index % 3, this->getValue(l, c));
 
@@ -102,14 +102,14 @@ float FloatMatrix4::getCofactor(int i, int j) const
 	return sign * subm.getDeterminant();
 }
 
-float FloatMatrix4::getValue(int i, int j) const
+float FloatMatrix4::getValue(int row, int col) const
 { 	
-	return _buffer[i * 4 + j];
+	return _buffer[row * 4 + col];
 }
 
-void FloatMatrix4::setValue(int i, int j, float value)
+void FloatMatrix4::setValue(int row, int col, float value)
 {
-	_buffer[i * 4 + j] = value;
+	_buffer[row * 4 + col] = value;
 }
 
 void FloatMatrix4::toFloatArray(float* buffer) const
@@ -121,8 +121,29 @@ void FloatMatrix4::toFloatArray(float* buffer) const
 }
 
 
+Vector3f FloatMatrix4::leftMult(const Vector3f& vect) const
+{
+	float sum;
 
-Vector3f FloatMatrix4::operator*(const Vector3f vect) const // right side mult (4x4.4x1 -> 4x1)
+	float vectArray[4] = {vect.X, vect.Y, vect.Z, 1};
+	float newArray[4] = {0, 0, 0, 0};
+	
+	for (int i = 0; i < 4; i++)
+	{
+		sum = 0;
+
+		for (int j = 0; j < 4; j++)
+		{
+			sum += this->getValue(j, i) * vectArray[j];
+		}
+
+		newArray[i] = sum;		
+	}
+	
+	return Vector3f(newArray[0], newArray[1], newArray[2]); // / vectArray[3];
+}
+
+Vector3f FloatMatrix4::rightMult(const Vector3f& vect) const // right side mult (4x4.4x1 -> 4x1)
 {
 	float sum;
 
@@ -141,26 +162,33 @@ Vector3f FloatMatrix4::operator*(const Vector3f vect) const // right side mult (
 		newArray[i] = sum;		
 	}
 	
-	return Vector3f(newArray[0], newArray[1], newArray[2]) / vectArray[3];
+	return Vector3f(newArray[0], newArray[1], newArray[2]); // / vectArray[3];
 }
 
-FloatMatrix4 FloatMatrix4::operator/(float value) const
+FloatMatrix4 FloatMatrix4::leftMult(const FloatMatrix4& mat) const
 {
-	auto m =  FloatMatrix4();
+	float sum;
+	FloatMatrix4 result = FloatMatrix4();
 
-	for (int i = 0; i < 4; i++)
+	for (int k = 0; k < 4; ++k)
 	{
-		for (int j = 0; j < 4; ++j)
+		for (int i = 0; i < 4; ++i)
 		{
-			float c = getValue(i, j);
-			m.setValue(i, j, c / value);
-		}
+			sum = 0;
+
+			for (int j = 0; j < 4; ++j)
+			{
+				sum += mat.getValue(i, j) * this->getValue(j, k);
+			}
+
+			result.setValue(i, k, sum);
+		}		
 	}
 
-	return m;
+	return result;
 }
 
-FloatMatrix4 FloatMatrix4::operator*(const FloatMatrix4 mat) const
+FloatMatrix4 FloatMatrix4::rightMult(const FloatMatrix4& mat) const
 {
 	float sum;
 	FloatMatrix4 result = FloatMatrix4();
@@ -181,6 +209,27 @@ FloatMatrix4 FloatMatrix4::operator*(const FloatMatrix4 mat) const
 	}
 
 	return result;
+}
+
+FloatMatrix4 FloatMatrix4::operator/(float value) const
+{
+	auto m =  FloatMatrix4();
+
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; ++j)
+		{
+			float c = getValue(i, j);
+			m.setValue(i, j, c / value);
+		}
+	}
+
+	return m;
+}
+
+void FloatMatrix4::print() const
+{
+	std::cout << *this << std::endl;
 }
 
 std::ostream& operator<<(std::ostream& out, FloatMatrix4 m)

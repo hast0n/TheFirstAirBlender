@@ -6,24 +6,24 @@
 
 # define M_PI 3.14159265358979323846  /* pi */
 
-void Camera::set_up_vector()
-{
-	Vector3f forw = getSightAxis();
-	
-	_up_vector = Vector3f(
-		- forw.X * forw.Y,
-		forw.X * forw.X + forw.Z * forw.Z,
-		- forw.Y * forw.Z
-	);
-}
+//void Camera::set_up_vector()
+//{
+//	Vector3f forw = getSightAxis();
+//	
+//	_up_vector = Vector3f(
+//		- forw.X * forw.Y,
+//		forw.X * forw.X + forw.Z * forw.Z,
+//		- forw.Y * forw.Z
+//	);
+//}
 
 FloatMatrix4 Camera::get_roll_matrix(float angle) const
 {
 	float rad = angle * M_PI / 180;
 	
 	float roll_buffer[16] = {
-		std::cos(rad), -std::sin(rad), 0, 0,
-		std::sin(rad), std::cos(rad), 0, 0,
+		std::cos(rad), std::sin(rad), 0, 0,
+		-std::sin(rad), std::cos(rad), 0, 0,
 		0, 0, 1, 0,
 		0, 0, 0, 1
 	};
@@ -37,8 +37,8 @@ FloatMatrix4 Camera::get_pitch_matrix(float angle) const
 	
 	float pitch_buffer[16] = {
 		1, 0, 0, 0,
-		0, std::cos(rad), -std::sin(rad), 0,
-		0, std::sin(rad), std::cos(rad), 0,
+		0, std::cos(rad), std::sin(rad), 0,
+		0, -std::sin(rad), std::cos(rad), 0,
 		0, 0, 0, 1
 	};
 
@@ -50,9 +50,9 @@ FloatMatrix4 Camera::get_yaw_matrix(float angle) const
 	float rad = angle * M_PI / 180;
 	
 	float yaw_buffer[16] = {
-		std::cos(rad), 0, std::sin(rad), 0,
+		std::cos(rad), 0, -std::sin(rad), 0,
 		0, 1, 0, 0,
-		-std::sin(rad), 0, std::cos(rad), 0,
+		std::sin(rad), 0, std::cos(rad), 0,
 		0, 0, 0, 1
 	};
 
@@ -68,7 +68,7 @@ Camera::Camera()
 	_aspect_ratio = 1.0f;
 
 	_zNear = 0.1f;
-	_zFar = 10.0f;
+	_zFar = 100.0f;
 
 	_roll = 0;
 	_pitch = 0;
@@ -81,19 +81,20 @@ Camera::Camera()
 void Camera::Rotate(float pitch, float yaw, float roll)
 {
 	auto rotationMatrix = 
-		get_roll_matrix(roll) *
-		get_yaw_matrix(yaw) *
-		get_pitch_matrix(pitch);
+		get_roll_matrix(roll).rightMult(
+			get_yaw_matrix(yaw).rightMult(
+				get_pitch_matrix(pitch)
+			)
+		);
 
-	_state = rotationMatrix * _state;
+	_state = rotationMatrix.leftMult(_state);
 }
 
 void Camera::Translate(const Vector3f& vect)
 {
-	//_position += vect;
-	_state.setValue(0, 3, _state.getValue(0, 3) + vect.X);
-	_state.setValue(1, 3, _state.getValue(1, 3) + vect.Y);
-	_state.setValue(2, 3, _state.getValue(2, 3) + vect.Z);
+	_state.setValue(3, 0, _state.getValue(3, 0) + vect.X);
+	_state.setValue(3, 1, _state.getValue(3, 1) + vect.Y);
+	_state.setValue(3, 2, _state.getValue(3, 2) + vect.Z);
 }
 
 
@@ -102,16 +103,16 @@ void Camera::SetPosition(const Vector3f& vect)
 {
 	//_position = vect;
 	//set_up_vector();
-	_state.setValue(0, 3, vect.X);
-	_state.setValue(1, 3, vect.Y);
-	_state.setValue(2, 3, vect.Z);
+	_state.setValue(3, 0, vect.X);
+	_state.setValue(3, 1, vect.Y);
+	_state.setValue(3, 2, vect.Z);
 }
 
-void Camera::SetTarget(const Vector3f& vect)
-{
-	_target = vect;
-	set_up_vector();
-}
+//void Camera::SetTarget(const Vector3f& vect)
+//{
+//	_target = vect;
+//	set_up_vector();
+//}
 
 void Camera::SetFOV(float fov)
 {
@@ -133,12 +134,12 @@ void Camera::SetZPlanes(float zNear, float zFar)
 
 void Camera::ResetPosition()
 {
-	this->SetPosition(Vector3f(0.0f, 0.0f, 1.0f));
+	this->SetPosition(Vector3f(0.0f, 0.0f, 0.0f));
 }
 
 void Camera::ResetRotation()
 {
-	//this->RotateTo(Vector3f(0.0f, 1.0f, 0.0f));
+	throw 0;//this->Rotate(Vector3f(0.0f, 1.0f, 0.0f));
 }
 
 void Camera::CleanState()
@@ -157,8 +158,10 @@ void Camera::CleanState()
 void Camera::GL_LoadState() const
 {
 	GLfloat* buffer = new GLfloat[16];
+
+	std::cout << "Camera state: "; _state.print();
 	
-	_state.getTranspose().toFloatArray(buffer); // transpose because OpenGL is column-major
+	_state.toFloatArray(buffer);
 	
 	glMatrixMode(GL_MODELVIEW);
 
@@ -203,30 +206,30 @@ FloatMatrix4 Camera::getState() const {return _state;}
 Vector3f Camera::getPosition() const
 {
 	return Vector3f(
-		_state.getValue(0, 3),
-		_state.getValue(1, 3),
-		_state.getValue(2, 3)
+		_state.getValue(3, 0),
+		_state.getValue(3, 1),
+		_state.getValue(3, 2)
 	);
 }
 
-Vector3f Camera::getTarget() const {return _target;}
-
-Vector3f Camera::getSightAxis() const
-{
-	return Vector3f(_target - _position).normalize();
-}
-
-Vector3f Camera::getRightAxis() const
-{
-	return Vector3f(getSightAxis() ^ _up_vector).normalize();
-}
-
-Vector3f Camera::getUpAxis() const
-{
-	return _up_vector.normalize();
-}
-
-Vector3f Camera::getZAxis() const
-{
-	return - getSightAxis();
-}
+//Vector3f Camera::getTarget() const {return _target;}
+//
+//Vector3f Camera::getSightAxis() const
+//{
+//	return Vector3f(_target - _position).normalize();
+//}
+//
+//Vector3f Camera::getRightAxis() const
+//{
+//	return Vector3f(getSightAxis() ^ _up_vector).normalize();
+//}
+//
+//Vector3f Camera::getUpAxis() const
+//{
+//	return _up_vector.normalize();
+//}
+//
+//Vector3f Camera::getZAxis() const
+//{
+//	return - getSightAxis();
+//}
