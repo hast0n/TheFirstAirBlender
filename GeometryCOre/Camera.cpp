@@ -1,5 +1,7 @@
 #include "Camera.h"
 #include <iostream>
+
+#include "FloatMatrix4.h"
 #include "windows.h"
 #include "gl/GLU.h"
 #include "GLErrorHandler.h"
@@ -139,7 +141,7 @@ void Camera::ResetPosition()
 
 void Camera::ResetRotation()
 {
-	throw 0;//this->Rotate(Vector3f(0.0f, 1.0f, 0.0f));
+	_state = _state.rightMult(getRotation().getInverse());
 }
 
 void Camera::CleanState()
@@ -159,7 +161,7 @@ void Camera::GL_LoadState() const
 {
 	GLfloat* buffer = new GLfloat[16];
 
-	std::cout << "Camera state: "; _state.print();
+	//std::cout << "Camera state: "; _state.print();
 	
 	_state.toFloatArray(buffer);
 	
@@ -210,6 +212,19 @@ Vector3f Camera::getPosition() const
 		_state.getValue(3, 1),
 		_state.getValue(3, 2)
 	);
+}
+
+FloatMatrix4 Camera::getRotation() const
+{
+		float state_buffer[16] =
+	{
+		_state.getValue(0, 0), _state.getValue(0, 1), _state.getValue(0, 2), 0,
+		_state.getValue(1, 0), _state.getValue(1, 1), _state.getValue(1, 2), 0,
+		_state.getValue(2, 0), _state.getValue(2, 1), _state.getValue(2, 2), 0,
+		0, 0, 0, 1
+	};
+
+	return FloatMatrix4(state_buffer);
 }
 
 //Vector3f Camera::getTarget() const {return _target;}

@@ -2,16 +2,12 @@
 #include <glut.h>
 #include <iostream>
 #include "Cube.h"
-#include "FloatMatrix3.h"
-#include "FloatMatrix4.h"
-#include "GLErrorHandler.h"
 #include "Sphere.h"
-#include "Plane.h"
 #include "Scene.h"
 #include "PNGExporter.h"
 #include "RayTracer.h"
 
-static int width  = 5;
+static int width  = 512;
 static int height = width; //square;
 static int ctr = 0;
 
@@ -45,6 +41,17 @@ void add_axis_cubes_to_scene()
 	scene->Add(cube6);
 }
 
+void add_spheres_to_scene()
+{
+	Sphere* sphere1 = new Sphere(Vector3f(0.2, 0, -1), 0.2f);
+	sphere1->SetColor(Vector3f(0.0, 1.0, 0.0));
+	scene->Add(sphere1);
+
+	Sphere* sphere2 = new Sphere(Vector3f(-0.2, 0, -1), 0.2f);
+	sphere2->SetColor(Vector3f(1.0, 0.0, 0.0));
+	scene->Add(sphere2);
+}
+
 void initScene()
 {
 	scene->Camera->SetFOV(60.0f);
@@ -53,6 +60,7 @@ void initScene()
 	//scene->Camera->SetTarget(Vector3f(0.0f, 0.0f, -10.0f));
 
 	add_axis_cubes_to_scene();
+	add_spheres_to_scene();
 	
 	//Cube* cube1 = new Cube(Vector3f(-0.0f, 0.0f, -1.0f), 0.05);
 	//cube1->SetColor(Vector3f(0.583f, 0.771f, 0.014f));
@@ -66,20 +74,9 @@ void initScene()
 	//cube3->SetColor(Vector3f(0.053f, 0.959f, 0.120f));
 	//scene->Add(cube3);
 
-	
-	//Sphere* sphere1 = new Sphere(Vector3f(0.2, 0, -1), 0.2f);
-	//sphere1->SetColor(Vector3f(0.0, 1.0, 0.0));
-	//scene->Add(sphere1);
-
-	//Sphere* sphere2 = new Sphere(Vector3f(-0.2, 0, -1), 0.2f);
-	//sphere2->SetColor(Vector3f(1.0, 0.0, 0.0));
-	//scene->Add(sphere2);
-
 	//Plane* plane1 = new Plane(Vector3f(0.0f, -.5f, 0.0f), 3.0f);
 	//plane1->SetColor(Vector3f(0.0f, 0.0f, 1.0f));
 	//scene->Add(plane1);
-	
-	
 }
 
 void mouse(int button, int state, int x, int y)
@@ -131,57 +128,73 @@ void keyboard(unsigned char key, int x, int y)
 	ctr = ++ctr % 2;	
 	auto t = Vector3f();
 	auto r = Vector3f();
+
+	float rotate_unit = 5.0f;
+	float translate_unit = .1f;
+
+	auto nb = scene->getGraphicObjectNumber();
 	
 	switch (key)
 	{
 	case 'z':
-		t.Z = -.1;
+		t.Z = -translate_unit;
 		break;
 	case 'q':
-		t.X = -.1;
+		t.X = -translate_unit;
 		break;
 	case 's':
-		t.Z = .1;
+		t.Z = translate_unit;
 		break;
 	case 'd':
-		t.X = .1;
+		t.X = translate_unit;
 		break;
 	case 'c':
-		t.Y = -.1;
+		t.Y = -translate_unit;
 		break;
 	case ' ':
-		t.Y = .1;
+		t.Y = translate_unit;
 		break;
 	case '7':
-		r.Z = 1;
+		r.Z = rotate_unit;
 		break;
 	case '9':
-		r.Z = -1;
+		r.Z = -rotate_unit;
 		break;
 	case '8':
-		r.X = -1;
+		r.X = -rotate_unit;
 		break;
 	case '6':
-		r.Y = 1;
+		r.Y = rotate_unit;
 		break;
 	case '2':
-		r.X = 1;
+		r.X = rotate_unit;
 		break;
 	case '4':
-		r.Y = -1;
+		r.Y = -rotate_unit;
 		break;
 	case 'r':
 		rt.RenderAndSave("./test.png");
 		break;
 	case 't':
 		//Delete rt generated pixel cubes
-		for (int i = 0; i < scene->getGraphicObjectNumber(); i++)
+		for (int i = 0; i < nb; i++)
 		{
-			scene->Delete(i);
+			scene->Remove(i);
 		}
 		
 		add_axis_cubes_to_scene();
+		add_spheres_to_scene();
+		
 		rt.Render();
+		break;
+	case 'p':
+		scene->Camera->ResetPosition();
+		break;
+	case 'o':
+		scene->Camera->ResetRotation();
+		break;
+	case 'i':
+		scene->Camera->CleanState();
 		break;
 	}
 
@@ -192,6 +205,13 @@ void keyboard(unsigned char key, int x, int y)
 	// Apply transform on Camera
 	scene->Camera->Rotate(r.X, r.Y, r.Z);
 	scene->Camera->Translate(-t); // translating the world, relative to camera
+
+	glMatrixMode(GL_MODELVIEW);
+	glColor3f(1, 0, 0);
+	glBegin(GL_LINES);
+	    glVertex3f(0, 0, 0);
+	    glVertex3f(0, 0, -0.5);
+	glEnd();
 	
 	glutPostRedisplay();
 }
@@ -255,7 +275,7 @@ int main(int argc, char** argv)
 {
 	initScene();
 	
-	rtTest();
+	//rtTest();
 	glTest(argc, argv);
 	
 	return 0;

@@ -2,6 +2,9 @@
 #include <iostream>
 #include <string>
 
+#include "Windows.h"
+#include "gl/GLU.h"
+
 #include "Cube.h"
 #include "PNGExporter.h"
 #include "Ray.h"
@@ -20,21 +23,41 @@ RayTracer::RayTracer(Scene* scene, unsigned pixelWidth, unsigned pixelHeight)
 void RayTracer::Render()
 {
 	this->compute_camera_to_world_matrix();
-	auto cameraPos = _scene->Camera->getPosition();
+	//auto cameraPos4 = _world_to_camera_matrix.rightMult(_scene->Camera->getPosition());
+	auto cameraPos = _camera_to_world_matrix.leftMult(Vector3f(0, 0, 0));
 
-	//return;
+	//std::cout << "camera position : " << -cameraPos << std::endl;
+	//std::cout << "camera position : " << -cameraPos1 << std::endl;
+	//std::cout << "camera position 2 : " << -cameraPos2 << std::endl;
+	//std::cout << "camera position : " << -cameraPos3 << std::endl;
+	//std::cout << "camera position 4 : " << -cameraPos4 << std::endl;
+	//std::cout << "camera position 5 : " << cameraPos5 << std::endl;
+	//std::cout << "camera position : " << cameraPos6 << std::endl;
+	//std::cout << "camera position : " << cameraPos7 << std::endl;
+	//std::cout << "camera position : " << cameraPos8 << std::endl;
+
 	for (int y = 0; y < _height; y++)
 	{
 		for (int x = 0; x < _width; x++)
 		{
 			Vector3f pixel_pos = raster_to_world_space(x, y);
-			
-			
-			auto* a = new Cube(pixel_pos, 0.005);
-			_scene->Add(a);
+			//std::cout << "pixel position : "<< pixel_pos << std::endl;
 
-			continue;
+			//auto* a = new Cube(pixel_pos, 0.0005);
+			//_scene->Add(a);
+			
 			auto ray = Ray(cameraPos, pixel_pos);
+			//glMatrixMode(GL_MODELVIEW);
+			//glColor3f(1, 0, 0);
+			//glBegin(GL_LINES);
+			//    glVertex3f(cameraPos.X, cameraPos.Y, cameraPos.Z);
+			//    glVertex3f(
+			//		ray.Direction.X * 100,
+			//		ray.Direction.Y * 100,
+			//		ray.Direction.Z * 100
+			//	);
+			//glEnd();
+			
 			float distMin = INFINITY;
 			
 			Vector3f color = _scene->BackgroundColor;
@@ -83,7 +106,7 @@ Vector3f RayTracer::raster_to_world_space(unsigned x, unsigned y)
 	float fov = _scene->Camera->getFOV(); // horizontal fov
 	float ar = _scene->Camera->getAspectRatio();
 	
-	float raster_space_width = 2 * zNear * std::sin(fov / 2 * M_PI / 180);
+	float raster_space_width = 2 * zNear * std::tan(fov / 2 * M_PI / 180);
 	float raster_space_height = raster_space_width / ar;
 
 	float x_unit = raster_space_width / this->_width;

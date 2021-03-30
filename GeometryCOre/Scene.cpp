@@ -48,7 +48,7 @@ void Scene::GL_Init()
 	this->Camera->GL_LoadState();
 }
 
-void Scene::Delete(int index)
+void Scene::Remove(int index)
 {
 	GraphicObject* ptr = graphic_object_array[index];
 	graphic_object_array[index] = nullptr;

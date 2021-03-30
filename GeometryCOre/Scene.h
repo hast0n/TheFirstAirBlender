@@ -9,7 +9,7 @@ class Scene
 public:
 	Camera* Camera;
 	
-	GraphicObject* graphic_object_array[100]{};
+	GraphicObject* graphic_object_array[270000]{};
 	int nbGraphicObject = 0;
 
 	Vector3f BackgroundColor = Vector3f(0.26f, 0.26f, 0.26f);
@@ -27,7 +27,7 @@ public:
 
 	//void Delete(GraphicObject* ptr);
 
-	void Delete(int index);
+	void Remove(int index);
 
 	int getGraphicObjectNumber() const;
 	

@@ -82,6 +82,8 @@ public:
 
 	Vector3f getPosition() const;
 	
+	FloatMatrix4 getRotation() const;
+	
 	//Vector3f getTarget() const;
 	//
 	//Vector3f getSightAxis() const;
