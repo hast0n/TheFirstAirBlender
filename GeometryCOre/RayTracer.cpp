@@ -23,28 +23,13 @@ RayTracer::RayTracer(Scene* scene, unsigned pixelWidth, unsigned pixelHeight)
 void RayTracer::Render()
 {
 	this->compute_camera_to_world_matrix();
-	//auto cameraPos4 = _world_to_camera_matrix.rightMult(_scene->Camera->getPosition());
 	auto cameraPos = _camera_to_world_matrix.leftMult(Vector3f(0, 0, 0));
-
-	//std::cout << "camera position : " << -cameraPos << std::endl;
-	//std::cout << "camera position : " << -cameraPos1 << std::endl;
-	//std::cout << "camera position 2 : " << -cameraPos2 << std::endl;
-	//std::cout << "camera position : " << -cameraPos3 << std::endl;
-	//std::cout << "camera position 4 : " << -cameraPos4 << std::endl;
-	//std::cout << "camera position 5 : " << cameraPos5 << std::endl;
-	//std::cout << "camera position : " << cameraPos6 << std::endl;
-	//std::cout << "camera position : " << cameraPos7 << std::endl;
-	//std::cout << "camera position : " << cameraPos8 << std::endl;
 
 	for (int y = 0; y < _height; y++)
 	{
 		for (int x = 0; x < _width; x++)
 		{
 			Vector3f pixel_pos = raster_to_world_space(x, y);
-			//std::cout << "pixel position : "<< pixel_pos << std::endl;
-
-			//auto* a = new Cube(pixel_pos, 0.0005);
-			//_scene->Add(a);
 			
 			auto ray = Ray(cameraPos, pixel_pos);
 			//glMatrixMode(GL_MODELVIEW);
@@ -58,7 +43,7 @@ void RayTracer::Render()
 			//	);
 			//glEnd();
 			
-			float distMin = INFINITY;
+			float distMin = _scene->Camera->getZFar();
 			
 			Vector3f color = _scene->BackgroundColor;
 			Vector3f intersect;

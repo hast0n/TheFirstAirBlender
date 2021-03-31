@@ -7,6 +7,10 @@
 #include "PNGExporter.h"
 #include "RayTracer.h"
 
+//https://stackoverflow.com/a/686373
+#define randFloat() (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))
+#define randFloatFromTo(LO, HI) (LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO))))
+
 static int width  = 512;
 static int height = width; //square;
 static int ctr = 0;
@@ -41,26 +45,77 @@ void add_axis_cubes_to_scene()
 	scene->Add(cube6);
 }
 
-void add_spheres_to_scene()
+void add_random_spheres_to_scene()
 {
-	Sphere* sphere1 = new Sphere(Vector3f(0.2, 0, -1), 0.2f);
-	sphere1->SetColor(Vector3f(0.0, 1.0, 0.0));
-	scene->Add(sphere1);
+	//Sphere* sphere1 = new Sphere(Vector3f(0.2, 0, -1), 0.2f);
+	//sphere1->SetColor(Vector3f(0.0, 1.0, 0.0));
+	//scene->Add(sphere1);
 
-	Sphere* sphere2 = new Sphere(Vector3f(-0.2, 0, -1), 0.2f);
-	sphere2->SetColor(Vector3f(1.0, 0.0, 0.0));
-	scene->Add(sphere2);
+	//Sphere* sphere2 = new Sphere(Vector3f(-0.2, 0, -1), 0.2f);
+	//sphere2->SetColor(Vector3f(1.0, 1.0, 1.0));
+	//scene->Add(sphere2);
+
+	float posMin = -8;
+	float posMax = 8;
+	
+	float sizeMin = 1;
+	float sizeMax = 5;
+	
+	for (int i = 0; i < 20; ++i)
+	{
+		Sphere* sphere = new Sphere(
+			Vector3f(
+				randFloatFromTo(posMin, posMax),
+				randFloatFromTo(posMin, posMax),
+				randFloatFromTo(posMin, posMax)
+			), 
+			randFloatFromTo(sizeMin, sizeMax));
+		sphere->SetColor(Vector3f(randFloat(), randFloat(), randFloat()));
+		scene->Add(sphere);
+	}
+}
+
+void add_random_cubes_to_scene()
+{
+	//Sphere* sphere1 = new Sphere(Vector3f(0.2, 0, -1), 0.2f);
+	//sphere1->SetColor(Vector3f(0.0, 1.0, 0.0));
+	//scene->Add(sphere1);
+
+	//Sphere* sphere2 = new Sphere(Vector3f(-0.2, 0, -1), 0.2f);
+	//sphere2->SetColor(Vector3f(1.0, 1.0, 1.0));
+	//scene->Add(sphere2);
+
+	float posMin = -8;
+	float posMax = 8;
+	
+	float sizeMin = 5;
+	float sizeMax = 5;
+	
+	for (int i = 0; i < 2; ++i)
+	{
+		Cube* cube = new Cube(
+			Vector3f(
+				randFloatFromTo(posMin, posMax),
+				randFloatFromTo(posMin, posMax),
+				randFloatFromTo(posMin, posMax)
+			), 
+			randFloatFromTo(sizeMin, sizeMax));
+		cube->SetColor(Vector3f(randFloat(), randFloat(), randFloat()));
+		scene->Add(cube);
+	}
 }
 
 void initScene()
 {
 	scene->Camera->SetFOV(60.0f);
+	scene->Camera->SetZPlanes(0.1f, 20.0f);
 	scene->Camera->SetPosition(Vector3f(0.0f, 0.0f, 0.0f));
 	scene->Camera->Rotate(0, 0, 0);
 	//scene->Camera->SetTarget(Vector3f(0.0f, 0.0f, -10.0f));
 
-	add_axis_cubes_to_scene();
-	add_spheres_to_scene();
+	//add_axis_cubes_to_scene();
+	//add_random_spheres_to_scene();
+	add_random_cubes_to_scene();
 	
 	//Cube* cube1 = new Cube(Vector3f(-0.0f, 0.0f, -1.0f), 0.05);
 	//cube1->SetColor(Vector3f(0.583f, 0.771f, 0.014f));
@@ -123,7 +178,7 @@ void display()
 
 void keyboard(unsigned char key, int x, int y)
 {
-	std::cout << "[KEYBOARD] Key: " << key << ", X: " << x << ", Y: " << y << std::endl;
+	//std::cout << "[KEYBOARD] Key: " << key << ", X: " << x << ", Y: " << y << std::endl;
 	
 	ctr = ++ctr % 2;	
 	auto t = Vector3f();
@@ -131,8 +186,13 @@ void keyboard(unsigned char key, int x, int y)
 
 	float rotate_unit = 5.0f;
 	float translate_unit = .1f;
+	float zFar_unit = 2.0f;
+	float fov_unit = 5.0f;
 
 	auto nb = scene->getGraphicObjectNumber();
+	auto zFar = scene->Camera->getZFar();
+	auto zNear = scene->Camera->getZNear();
+	auto fov = scene->Camera->getFOV();
 	
 	switch (key)
 	{
@@ -173,9 +233,12 @@ void keyboard(unsigned char key, int x, int y)
 		r.Y = -rotate_unit;
 		break;
 	case 'r':
+		std::cout << "[RAYTRACING] started rendering and exporting to png..." << std::endl;
 		rt.RenderAndSave("./test.png");
+		std::cout << "[RAYTRACING] done!" << std::endl;
 		break;
 	case 't':
+		std::cout << "[RAYTRACING] shuffling scene..." << std::endl;
 		//Delete rt generated pixel cubes
 		for (int i = 0; i < nb; i++)
 		{
@@ -183,9 +246,11 @@ void keyboard(unsigned char key, int x, int y)
 		}
 		
 		add_axis_cubes_to_scene();
-		add_spheres_to_scene();
+		add_random_spheres_to_scene();
 		
+		std::cout << "[RAYTRACING] started rendering..." << std::endl;
 		rt.Render();
+		std::cout << "[RAYTRACING] done!" << std::endl;
 		break;
 	case 'p':
 		scene->Camera->ResetPosition();
@@ -195,6 +260,26 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 'i':
 		scene->Camera->CleanState();
+		break;
+	case '+':
+		scene->Camera->SetZPlanes(zNear, zFar + zFar_unit);
+		scene->Camera->GL_LoadPerspective();
+		std::cout << "[CAMERA] set zFar plane to " << zFar + zFar_unit << std::endl;
+		break;
+	case '-':
+		scene->Camera->SetZPlanes(zNear, zFar - zFar_unit);
+		scene->Camera->GL_LoadPerspective();
+		std::cout << "[CAMERA] set zFar plane to " << zFar - zFar_unit << std::endl;
+		break;
+	case '*':
+		scene->Camera->SetFOV(fov + fov_unit);
+		scene->Camera->GL_LoadPerspective();
+		std::cout << "[CAMERA] set FOV to " << fov + fov_unit << std::endl;
+		break;
+	case '/':
+		scene->Camera->SetFOV(fov - fov_unit);
+		scene->Camera->GL_LoadPerspective();
+		std::cout << "[CAMERA] set FOV to " << fov - fov_unit << std::endl;
 		break;
 	}
 
