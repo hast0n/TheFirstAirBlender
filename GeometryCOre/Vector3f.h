@@ -11,10 +11,12 @@ struct Vector3f
 	Vector3f(float x, float y, float z);
 	Vector3f(const Vector3f& v);
 
+	Vector3f operator+(float f) const;
 	Vector3f operator+(const Vector3f& v1) const;
 	void operator+=(const Vector3f& v2);
 
 	Vector3f operator-() const;
+	Vector3f operator-(float f) const;
 	Vector3f operator-(const Vector3f& v2) const;
 	void operator-=(const Vector3f& v2);
 

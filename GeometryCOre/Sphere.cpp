@@ -2,7 +2,7 @@
 #include "glut.h"
 #include <iostream>
 
-Sphere::Sphere(const Vector3f& center, float radius)
+Sphere::Sphere(const Vector3f& center, float radius): GraphicObject()
 {
 	Pos = center;
 	Radius = radius;
@@ -48,37 +48,54 @@ void Sphere::GLRender() const
 		GLRenderFill(Vector3f(1.0, 0.0, 1.0));
 	else GLRenderFill(this->Color);
 
-	GLRenderWireframe(Vector3f(1.0, 0.0, 0.0));
+	//GLRenderWireframe(Vector3f(1.0, 0.0, 0.0));
 }
 
 bool Sphere::Intersects(const Ray& ray, Vector3f* intersect)
 {
-    float t0, t1; // solutions for t if the ray intersects
-    
-    // geometric solution
-    Vector3f L = Pos - ray.Origin; 
-    float tca = L * ray.Direction;
-    // if (tca < 0) return false;
-    float d2 = L * L - tca * tca;
+	// inspired from https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
+    float i0, i1;
+
+	// get origin to sphere center vector
+	const Vector3f tsc = Pos - ray.Origin; 
+
+	// get distance to sphere center level on ray path
+	float dtsc = tsc * ray.Direction;
+
+	// get ray path to sphere center minimum distance squarred (where perpendicular to ray path)
+	// Pythagore (sideLength² = hypotenuse² - otherSideLength²)
+    float rptsc2 = tsc * tsc - dtsc * dtsc;
+
+	// sphere radius squarred
 	float radius2 = Radius * Radius;
 
-    if (d2 > radius2) 
+	// check if intersection occurs
+    if (rptsc2 > radius2) 
 		return false; 
 
-	float thc = sqrt(radius2 - d2); 
-    t0 = tca - thc; 
-    t1 = tca + thc; 
+	// sort the 2 intersection points (closest & farthest)
+	// get half the distance the ray travels while inside the sphere
+	float rhd = sqrt(radius2 - rptsc2);
 
-    if (t0 > t1) std::swap(t0, t1); 
+	// determine each 2 intersection points distance from ray origin (entry & exit)
+    i0 = dtsc - rhd; 
+    i1 = dtsc + rhd; 
 
-    if (t0 < 0) { 
-        t0 = t1; // if t0 is negative, let's use t1 instead 
+	// if entry is farther than exit, swap them
+    if (i0 > i1) std::swap(i0, i1); 
 
-    	if (t0 < 0) 
-			return false; // both t0 and t1 are negative 
+	// if entry is behind camera eye, use exit to show sphere interior
+    if (i0 < 0) {
+    	
+        i0 = i1;
+
+    	// if exit also is behind eye, cancel intersection
+    	if (i0 < 0) 
+			return false;
     } 
 
-    *intersect = ray.Origin + ray.Direction * t0; 
+	// set out variable to give back intersection point
+    *intersect = ray.Origin + ray.Direction * i0; 
 
     return true;
 }

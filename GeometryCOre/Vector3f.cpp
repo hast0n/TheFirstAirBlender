@@ -17,6 +17,11 @@ Vector3f::Vector3f(const Vector3f& v)
 	Z = v.Z;
 }
 
+Vector3f Vector3f::operator+(float f) const
+{
+	return Vector3f(X + f, Y + f, Z + f);
+}
+
 Vector3f Vector3f::operator+(const Vector3f& v1) const
 {
 	return Vector3f(
@@ -36,6 +41,11 @@ void Vector3f::operator+=(const Vector3f& v2)
 Vector3f Vector3f::operator-() const
 {
 	return Vector3f(-X, -Y, -Z);
+}
+
+Vector3f Vector3f::operator-(float f) const
+{
+	return Vector3f(X - f, Y - f, Z - f);
 }
 
 Vector3f Vector3f::operator-(const Vector3f& v2) const

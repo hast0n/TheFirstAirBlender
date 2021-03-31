@@ -8,7 +8,7 @@ public:
 	Vector3f Pos;
 	float Radius;
 
-	~Sphere() = default;
+	~Sphere() override = default;
 	Sphere(const Vector3f& center, float radius);
 	
 	void Move(const Vector3f& vect3);

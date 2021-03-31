@@ -2,13 +2,13 @@
 #include "glut.h"
 #include "Cube.h"
 
-Cube::Cube(const Vector3f& cubePosition, float cubeSize)
+Cube::Cube(const Vector3f& cubePosition, float cubeSize): GraphicObject()
 {
 	Pos = cubePosition;
 	Size = cubeSize;
 
 	Color = Vector3f(1.0, 0.0, 1.0);
-
+	
 	GenerateVertexBuffers();
 	LogInit();
 }
@@ -75,12 +75,51 @@ void Cube::GLRender() const
 {
 	GLRenderFaces(this->Color);
 
-	GLRenderWireframe(Vector3f(1.0, 0.0, 0.0));
+	//GLRenderWireframe(Vector3f(1.0, 0.0, 0.0));
 }
 
 bool Cube::Intersects(const Ray& ray, Vector3f* intersect)
 {
-	return false;
+	// mainly inspired from https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
+	
+	float halfSize = Size / 2;
+	auto min = Pos - halfSize;
+	auto max = Pos + halfSize;
+	
+	float tmin = (min.X - ray.Origin.X) / ray.Direction.X; 
+    float tmax = (max.X - ray.Origin.X) / ray.Direction.X; 
+ 
+    if (tmin > tmax) std::swap(tmin, tmax); 
+ 
+    float tymin = (min.Y - ray.Origin.Y) / ray.Direction.Y; 
+    float tymax = (max.Y - ray.Origin.Y) / ray.Direction.Y; 
+ 
+    if (tymin > tymax) std::swap(tymin, tymax); 
+ 
+    if ((tmin > tymax) || (tymin > tmax)) 
+        return false; 
+ 
+    if (tymin > tmin) 
+        tmin = tymin; 
+ 
+    if (tymax < tmax) 
+        tmax = tymax; 
+ 
+    float tzmin = (min.Z - ray.Origin.Z) / ray.Direction.Z; 
+    float tzmax = (max.Z - ray.Origin.Z) / ray.Direction.Z; 
+ 
+    if (tzmin > tzmax) std::swap(tzmin, tzmax); 
+ 
+    if ((tmin > tzmax) || (tzmin > tmax)) 
+        return false; 
+ 
+    if (tzmin > tmin) 
+        tmin = tzmin; 
+ 
+    if (tzmax < tmax) 
+        tmax = tzmax; 
+ 
+    return true;
 }
 
 void Cube::LogInit()

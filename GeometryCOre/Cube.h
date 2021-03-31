@@ -8,7 +8,7 @@ public:
 	Vector3f Pos;
 	float Size;
 
-	~Cube() {}
+	~Cube() override = default;
 	Cube(const Vector3f& cubePosition, float cubeSize);
 
 	void Move(const Vector3f& vect3) override;
