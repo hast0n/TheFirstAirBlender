@@ -1,20 +1,16 @@
-class Vector3f;
+#include "GraphicObject.h"
+#include "Vector3f.h"
 
-class GraphicObject
+int GraphicObject::ID = 0;
+
+GraphicObject::GraphicObject(): currentID(ID++) {}
+
+Vector3f GraphicObject::getColor() const
 {
+	return Color;
+}
 
-public:
-	virtual ~GraphicObject() = default;
-	
-	virtual void RTRender() const = 0;
-	
-	virtual void GLRender() const = 0;
-	
-	//virtual Vector3f* GetVertexBuffer() const = 0;
-	
-	virtual void SetColor(const Vector3f& color) = 0;
-	
-	virtual void Move(const Vector3f& vect3) = 0;
-	
-	virtual void Scale(float factor) = 0;
-};
+int GraphicObject::GetID() const
+{
+	return currentID;
+}

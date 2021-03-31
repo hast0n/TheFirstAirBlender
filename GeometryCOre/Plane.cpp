@@ -3,7 +3,7 @@
 
 Plane::~Plane() {}
 
-Plane::Plane(const Vector3f& center, float planeSize)
+Plane::Plane(const Vector3f& center, float planeSize): GraphicObject()
 {
 	Pos = center; Size = planeSize;
 	GenerateVertexBuffer();
