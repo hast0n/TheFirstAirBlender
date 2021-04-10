@@ -68,7 +68,7 @@ void Plane::GLRender() const
 	GLRenderFill(this->Color1);
 }
 
-bool Plane::Intersects(const Ray& ray, Vector3f* intersect)
+bool Plane::Intersects(const Ray& ray, Vector3f& intersect, Vector3f& normal)
 {
 	return false;
 }

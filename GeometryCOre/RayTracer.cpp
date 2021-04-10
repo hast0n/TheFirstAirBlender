@@ -22,14 +22,14 @@ RayTracer::RayTracer(Scene* scene, unsigned pixelWidth, unsigned pixelHeight)
 
 void RayTracer::Render()
 {
-	this->compute_camera_to_world_matrix();
+	this->initTransformMatrix();
 	auto cameraPos = _camera_to_world_matrix.leftMult(Vector3f(0, 0, 0));
 
 	for (int y = 0; y < _height; y++)
 	{
 		for (int x = 0; x < _width; x++)
 		{
-			Vector3f pixel_pos = raster_to_world_space(x, y);
+			Vector3f pixel_pos = getRasterToWorldSpaceCoordinates(x, y);
 			
 			auto ray = Ray(cameraPos, pixel_pos);
 			//glMatrixMode(GL_MODELVIEW);
@@ -47,13 +47,14 @@ void RayTracer::Render()
 			
 			Vector3f color = _scene->BackgroundColor;
 			Vector3f intersect;
+			Vector3f normal;
 			GraphicObject* nearest = nullptr;
 			
 			for (int i = 0; i < _scene->nbGraphicObject; ++i)
 			{
 				GraphicObject* obj = _scene->getGraphicObject(i);
 
-				if (obj->Intersects(ray, &intersect))
+				if (obj->Intersects(ray, intersect, normal))
 				{
 					const float dist = (intersect - ray.Origin).length();
 
@@ -79,13 +80,13 @@ void RayTracer::Render()
 	}
 }
 
-void RayTracer::compute_camera_to_world_matrix()
+void RayTracer::initTransformMatrix()
 {
 	_world_to_camera_matrix = _scene->Camera->getState();		
 	_camera_to_world_matrix = _world_to_camera_matrix.getInverse();
 }
 
-Vector3f RayTracer::raster_to_world_space(unsigned x, unsigned y)
+Vector3f RayTracer::getRasterToWorldSpaceCoordinates(unsigned x, unsigned y)
 {
 	float zNear = _scene->Camera->getZNear();
 	float fov = _scene->Camera->getFOV(); // horizontal fov
@@ -101,6 +102,26 @@ Vector3f RayTracer::raster_to_world_space(unsigned x, unsigned y)
 	float newY = (raster_space_height / 2) - (y_unit * y) - y_unit / 2;
 
 	return _camera_to_world_matrix.leftMult(Vector3f(newX, newY, - zNear));
+}
+
+FloatMatrix4 RayTracer::getCameraToWorldMatrix() const
+{
+	return _camera_to_world_matrix;
+}
+
+FloatMatrix4 RayTracer::getWorldToCameraMatrix() const
+{
+	return _world_to_camera_matrix;
+}
+
+float RayTracer::getWidth() const
+{
+	return _width;
+}
+
+float RayTracer::getHeight() const
+{
+	return _height;
 }
 
 void RayTracer::RenderAndSave(std::string file_path)

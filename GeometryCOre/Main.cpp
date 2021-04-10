@@ -11,15 +11,19 @@
 #define randFloat() (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))
 #define randFloatFromTo(LO, HI) (LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO))))
 
-static int width  = 512;
-static int height = width; //square;
+static int glWidth = 1000;
+static int glHeight = 1000;
+
+
+static int rtWidth  = 512;
+static int rtHeight = rtWidth; //square;
 static int ctr = 0;
 
-static Scene* scene = new Scene();
-static RayTracer rt = RayTracer(scene, width, height);
+static const float newXunit = static_cast<float>(rtWidth) / static_cast<float>(glWidth);
+static const float newYunit = static_cast<float>(rtHeight) / static_cast<float>(glHeight);
 
-static int* prevX = new int(NULL);
-static int* prevY = new int(NULL);
+static Scene* scene = new Scene();
+static RayTracer rt = RayTracer(scene, rtWidth, rtHeight);
 
 void add_axis_cubes_to_scene()
 {
@@ -108,14 +112,14 @@ void add_random_cubes_to_scene()
 void initScene()
 {
 	scene->Camera->SetFOV(60.0f);
-	scene->Camera->SetZPlanes(0.1f, 20.0f);
-	scene->Camera->SetPosition(Vector3f(0.0f, 0.0f, 0.0f));
-	scene->Camera->Rotate(0, 0, 0);
+	scene->Camera->SetZPlanes(0.1f, 50.0f);
+	scene->Camera->SetPosition(Vector3f(0.0f, 0.0f, -5.0f));
+	scene->Camera->Rotate(0, 180, 0);
 	//scene->Camera->SetTarget(Vector3f(0.0f, 0.0f, -10.0f));
 
-	//add_axis_cubes_to_scene();
+	add_axis_cubes_to_scene();
 	//add_random_spheres_to_scene();
-	add_random_cubes_to_scene();
+	//add_random_cubes_to_scene();
 	
 	//Cube* cube1 = new Cube(Vector3f(-0.0f, 0.0f, -1.0f), 0.05);
 	//cube1->SetColor(Vector3f(0.583f, 0.771f, 0.014f));
@@ -134,39 +138,60 @@ void initScene()
 	//scene->Add(plane1);
 }
 
+GraphicObject* pick(int x, int y)
+{
+	rt.initTransformMatrix();
+
+	const Vector3f pixel_pos = rt.getRasterToWorldSpaceCoordinates(x * newXunit, y * newYunit);
+	const auto cameraPos = rt.getCameraToWorldMatrix().leftMult(Vector3f(0, 0, 0));
+
+	const auto ray = Ray(cameraPos, pixel_pos);
+	
+	float distMin = INFINITY;
+	
+	Vector3f intersect;
+	GraphicObject* nearest = nullptr;
+	
+	for (int i = 0; i < scene->nbGraphicObject; ++i)
+	{
+		GraphicObject* obj = scene->getGraphicObject(i);
+
+		if (obj->Intersects(ray, intersect))
+		{
+			const float dist = (intersect - ray.Origin).length();
+
+			if (dist < distMin)
+			{
+				nearest = obj;
+				distMin = dist;
+			}
+		}
+	}
+
+	return nearest;
+}
+
 void mouse(int button, int state, int x, int y)
 {
-	std::cout << "[MOUSE] Button: " << button << ", State: " << state << ", X: " << x << ", Y: " << y << std::endl;
-	//if (button == GLUT_LEFT_BUTTON)
-	//{
-	//	switch (state)
-	//	{
-	//	case GLUT_DOWN:
-	//		if (*prevX == NULL || *prevY == NULL)
-	//		{
-	//			*prevX = x;
-	//			*prevY = y;
-	//			break;
-	//		}
-	//		std::cout << "GLUT_DOWN at [" << x << "," << y << "] prevx: " << *prevX << ", prevY: " << *prevY << std::endl;
-	//		*prevX = x;
-	//		*prevY = y;
-	//		glLoadIdentity();
-	//		gluLookAt(x/1000, y/1000, 1.0, 0.0, 0.0, 0.0, 0.0, 2.0, -1.8);
-	//		break;
-	//	case GLUT_UP:
-	//		*prevX = NULL;
-	//		*prevY = NULL;
-	//		break;
-	//	}
-	//}
-	//glMatrixMode(GL_PROJECTION);
-	//glLoadIdentity();
-	//gluPerspective(60.0, 1.0, 0.1, 100); // equi glFrustum
-	//glMatrixMode(GL_MODELVIEW);
-	//glLoadIdentity();
-	//glutPostRedisplay();
-	//glOrtho(1.1, 1.1, 0.1, 1.1, 1.1, 1.1);
+	//std::cout << "[MOUSE] Button: " << button << ", State: " << state << ", X: " << x << ", Y: " << y << std::endl;
+
+	GraphicObject* obj = nullptr;
+	
+	switch (button)
+	{
+	case GLUT_LEFT_BUTTON:
+		if (state == GLUT_UP)
+		{
+			obj = pick(x, y);
+			if (obj != nullptr) std::cout << "[PICKING] GraphicObject ID: " << obj->GetID() << std::endl;
+		}
+	case GLUT_MIDDLE_BUTTON:
+		break;
+	case GLUT_RIGHT_BUTTON:
+		break;
+	default:
+		break;
+	}
 }
 
 void display()
@@ -185,7 +210,7 @@ void keyboard(unsigned char key, int x, int y)
 	auto r = Vector3f();
 
 	float rotate_unit = 5.0f;
-	float translate_unit = .1f;
+	float translate_unit = .5f;
 	float zFar_unit = 2.0f;
 	float fov_unit = 5.0f;
 
@@ -214,10 +239,10 @@ void keyboard(unsigned char key, int x, int y)
 	case ' ':
 		t.Y = translate_unit;
 		break;
-	case '7':
+	case '9':
 		r.Z = rotate_unit;
 		break;
-	case '9':
+	case '7':
 		r.Z = -rotate_unit;
 		break;
 	case '8':
@@ -281,22 +306,29 @@ void keyboard(unsigned char key, int x, int y)
 		scene->Camera->GL_LoadPerspective();
 		std::cout << "[CAMERA] set FOV to " << fov - fov_unit << std::endl;
 		break;
+	case '&':
+		std::cout << "[CAMERA] current state: " << scene->Camera->getState() << std::endl;
+		break;
+	case '<':
+		std::cout << "[SCENE] reset scene!" << std::endl;
+		for (int i = 0; i < nb; i++)
+		{
+			scene->Remove(i);
+		}
+		break;
+	case 'w':
+		std::cout << "[SCENE] generate cubes!" << std::endl;
+		add_random_cubes_to_scene();
+		break;
+	case 'x':
+		std::cout << "[SCENE] generate spheres!" << std::endl;
+		add_random_spheres_to_scene();
+		break;
 	}
-
-	// Validate refresh (simulate flickering)
-	//if (ctr) glClearColor(0.10f, 0.10f, 0.10f, 1.0f);
-	//else glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Apply transform on Camera
 	scene->Camera->Rotate(r.X, r.Y, r.Z);
 	scene->Camera->Translate(-t); // translating the world, relative to camera
-
-	glMatrixMode(GL_MODELVIEW);
-	glColor3f(1, 0, 0);
-	glBegin(GL_LINES);
-	    glVertex3f(0, 0, 0);
-	    glVertex3f(0, 0, -0.5);
-	glEnd();
 	
 	glutPostRedisplay();
 }
@@ -331,7 +363,7 @@ void glTest(int argc, char** argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-	glutInitWindowSize(1000, 1000);
+	glutInitWindowSize(glWidth, glHeight);
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow(argv[0]);
 

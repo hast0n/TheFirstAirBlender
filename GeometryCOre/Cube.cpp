@@ -1,6 +1,7 @@
-#include <iostream>
 #include "glut.h"
 #include "Cube.h"
+
+#include <windows.h>
 
 Cube::Cube(const Vector3f& cubePosition, float cubeSize): GraphicObject()
 {
@@ -78,48 +79,53 @@ void Cube::GLRender() const
 	//GLRenderWireframe(Vector3f(1.0, 0.0, 0.0));
 }
 
-bool Cube::Intersects(const Ray& ray, Vector3f* intersect)
+bool Cube::Intersects(const Ray& ray, Vector3f& intersect, Vector3f& normal)
 {
 	// mainly inspired from https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
+
+	const Vector3f invdir = 1 / ray.Direction; 
+	const float halfSize = Size / 2;
+
+	Vector3f bounds[] = {
+		Pos - halfSize,
+		Pos + halfSize
+	};
 	
-	float halfSize = Size / 2;
-	auto min = Pos - halfSize;
-	auto max = Pos + halfSize;
+    int sign[] = {
+	    sign[0] = (invdir.X < 0), 
+	    sign[1] = (invdir.Y < 0),
+	    sign[2] = (invdir.Z < 0)
+    };
+
+    float tmin = (bounds[sign[0]].X - ray.Origin.X) * invdir.X; 
+    float tmax = (bounds[1 - sign[0]].X - ray.Origin.X) * invdir.X; 
+    float tymin = (bounds[sign[1]].Y - ray.Origin.Y) * invdir.Y; 
+    float tymax = (bounds[1 - sign[1]].Y - ray.Origin.Y) * invdir.Y; 
+
+    if ((tmin > tymax) || (tymin > tmax)) return false; 
+
+    if (tymin > tmin) tmin = tymin;
+    if (tymax < tmax) tmax = tymax;
+
+    float tzmin = (bounds[sign[2]].Z - ray.Origin.Z) * invdir.Z;
+    float tzmax = (bounds[1 - sign[2]].Z - ray.Origin.Z) * invdir.Z;
+
+    if ((tmin > tzmax) || (tzmin > tmax)) return false; 
+
+    if (tzmin > tmin) tmin = tzmin; 
+    if (tzmax < tmax) tmax = tzmax; 
+
+	float t = tmin;
 	
-	float tmin = (min.X - ray.Origin.X) / ray.Direction.X; 
-    float tmax = (max.X - ray.Origin.X) / ray.Direction.X; 
- 
-    if (tmin > tmax) std::swap(tmin, tmax); 
- 
-    float tymin = (min.Y - ray.Origin.Y) / ray.Direction.Y; 
-    float tymax = (max.Y - ray.Origin.Y) / ray.Direction.Y; 
- 
-    if (tymin > tymax) std::swap(tymin, tymax); 
- 
-    if ((tmin > tymax) || (tymin > tmax)) 
-        return false; 
- 
-    if (tymin > tmin) 
-        tmin = tymin; 
- 
-    if (tymax < tmax) 
-        tmax = tymax; 
- 
-    float tzmin = (min.Z - ray.Origin.Z) / ray.Direction.Z; 
-    float tzmax = (max.Z - ray.Origin.Z) / ray.Direction.Z; 
- 
-    if (tzmin > tzmax) std::swap(tzmin, tzmax); 
- 
-    if ((tmin > tzmax) || (tzmin > tmax)) 
-        return false; 
- 
-    if (tzmin > tmin) 
-        tmin = tzmin; 
- 
-    if (tzmax < tmax) 
-        tmax = tzmax; 
- 
-    return true;
+	if (t < 0) { 
+        t = tmax; 
+        if (t < 0) return false; 
+    } 
+	
+    intersect = ray.Origin + ray.Direction * t;
+	//normal = ;
+	
+    return true; 
 }
 
 void Cube::LogInit()

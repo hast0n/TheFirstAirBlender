@@ -3,18 +3,31 @@
 
 Vector3f::Vector3f()
 {
-	X = NULL;
-	Y = NULL;
-	Z = NULL;
+	X = 0;
+	Y = 0;
+	Z = 0;
+
+	m[0] = 0;
+	m[1] = 0;
+	m[2] = 0;
 }
 
-Vector3f::Vector3f(float x, float y, float z) :X(x), Y(y), Z(z) {}
+Vector3f::Vector3f(float x, float y, float z) :X(x), Y(y), Z(z)
+{
+	m[0] = x;
+	m[1] = y;
+	m[2] = z;
+}
 
 Vector3f::Vector3f(const Vector3f& v)
 {
 	X = v.X;
 	Y = v.Y;
 	Z = v.Z;
+
+	m[0] = v.X;
+	m[1] = v.Y;
+	m[2] = v.Z;
 }
 
 Vector3f Vector3f::operator+(float f) const
@@ -140,6 +153,11 @@ Vector3f Vector3f::normalize() const
 float Vector3f::length() const
 {
 	return sqrt((X * X) + (Y * Y) + (Z * Z));
+}
+
+Vector3f operator/(int lhs, const Vector3f& rhs)
+{
+	return Vector3f(lhs / rhs.X, lhs / rhs.Y, lhs / rhs.Z);
 }
 
 std::ostream& operator<<(std::ostream& out, Vector3f v)

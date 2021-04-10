@@ -19,7 +19,7 @@ public:
 	void GLRenderFaces(const Vector3f& faceColor) const;
 	void GLRenderWireframe(const Vector3f& wireColor) const;
 	void GLRender() const override;
-	bool Intersects(const Ray& ray, Vector3f* intersect) override;
+	bool Intersects(const Ray& ray, Vector3f& intersect, Vector3f& normal) override;
 
 private:
 	Vector3f* _vertexBuffer[8];

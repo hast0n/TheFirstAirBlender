@@ -15,15 +15,15 @@ public:
 	Plane(const Vector3f& center, float nbSquareHeight, float nbSquareWidth);
 
 	void SetColors(const Vector3f& color1, const Vector3f& color2);
-	void Move(const Vector3f& vect3);
-	void Scale(float factor);
+	void Move(const Vector3f& vect3) override;
+	void Scale(float factor) override;
 
-	void RTRender() const;
+	void RTRender() const override;
 
 	void GLRenderFill(const Vector3f& fillColor) const;
 	void GLRenderWireframe(const Vector3f& wireColor) const;
-	void GLRender() const;
-	bool Intersects(const Ray& ray, Vector3f* intersect) override;
+	void GLRender() const override;
+	bool Intersects(const Ray& ray, Vector3f& intersect, Vector3f& normal) override;
 
 private:
 	Vector3f* _vertexBuffer[4];

@@ -7,6 +7,8 @@ struct Vector3f
 	float Y;
 	float Z;
 
+	float m[3];
+
 	Vector3f();
 	Vector3f(float x, float y, float z);
 	Vector3f(const Vector3f& v);
@@ -23,9 +25,7 @@ struct Vector3f
 	float operator*(const Vector3f& v2) const;
 	Vector3f operator*(float scalar) const;
 	void operator*=(float scalar);
-
-	
-	
+		
 	float operator/(const Vector3f& v2) const;
 	Vector3f operator/(float scalar) const;
 	void operator/=(float scalar);
@@ -39,5 +39,7 @@ struct Vector3f
 	
 	float length() const;
 };
+
+Vector3f operator/(int lhs, const Vector3f& rhs);
 
 std::ostream& operator<<(std::ostream& out, Vector3f v);

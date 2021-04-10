@@ -25,7 +25,7 @@ public:
 
 	virtual void Scale(float factor) = 0;
 
-	virtual bool Intersects(const Ray& ray, Vector3f* intersect) = 0;
+	virtual bool Intersects(const Ray& ray, Vector3f& intersect, Vector3f& normal) = 0;
 	
 	void SetColor(const Vector3f& color) {Color = color;}
 

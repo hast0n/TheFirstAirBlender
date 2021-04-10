@@ -23,10 +23,16 @@ public:
 
 	void RenderAndSave(std::string file_path);
 
-private:
-
-	void compute_camera_to_world_matrix();
+	void initTransformMatrix();
 	
-	Vector3f raster_to_world_space(unsigned x, unsigned y);
+	Vector3f getRasterToWorldSpaceCoordinates(unsigned x, unsigned y);
+
+	FloatMatrix4 getCameraToWorldMatrix() const;
+
+	FloatMatrix4 getWorldToCameraMatrix() const;
+
+	float getWidth() const;
+
+	float getHeight() const;
 };
 

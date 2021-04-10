@@ -51,7 +51,7 @@ void Sphere::GLRender() const
 	//GLRenderWireframe(Vector3f(1.0, 0.0, 0.0));
 }
 
-bool Sphere::Intersects(const Ray& ray, Vector3f* intersect)
+bool Sphere::Intersects(const Ray& ray, Vector3f& intersect, Vector3f& normal)
 {
 	// inspired from https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
     float i0, i1;
@@ -95,7 +95,8 @@ bool Sphere::Intersects(const Ray& ray, Vector3f* intersect)
     } 
 
 	// set out variable to give back intersection point
-    *intersect = ray.Origin + ray.Direction * i0; 
+    intersect = ray.Origin + ray.Direction * i0;
+	normal = (intersect - Pos).normalize();
 
     return true;
 }
