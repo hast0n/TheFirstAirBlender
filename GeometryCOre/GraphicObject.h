@@ -1,4 +1,5 @@
 #pragma once
+#include "Material.h"
 #include "Ray.h"
 #include "Vector3f.h"
 
@@ -8,7 +9,8 @@ class GraphicObject
 
 protected:
 	const int currentID;
-	Vector3f Color;
+	RGBAColor Color;
+	Materials::Material Material;
 
 
 public:
@@ -25,11 +27,18 @@ public:
 
 	virtual void Scale(float factor) = 0;
 
+	//TODO: Add rotation to objects
+	//virtual void Rotate(float factor) = 0;
+
 	virtual bool Intersects(const Ray& ray, Vector3f& intersect, Vector3f& normal) = 0;
 	
-	void SetColor(const Vector3f& color) {Color = color;}
+	void SetColor(const RGBAColor& color) {Material.finish = color;}
+	
+	void SetMaterial(const Materials::Material material) { Material = material;}
 
-	Vector3f getColor() const;
+	RGBAColor getColor() const;
 
+	Materials::Material getMaterial() const;
+	
 	int GetID() const;
 };

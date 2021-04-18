@@ -12,7 +12,6 @@ public:
 
 	~Plane();
 	Plane(const Vector3f& center, float planeSize);
-	Plane(const Vector3f& center, float nbSquareHeight, float nbSquareWidth);
 
 	void SetColors(const Vector3f& color1, const Vector3f& color2);
 	void Move(const Vector3f& vect3) override;

@@ -10,14 +10,15 @@ public:
 
 	~Sphere() override = default;
 	Sphere(const Vector3f& center, float radius);
+	Sphere();
 	
 	void Move(const Vector3f& vect3) override;
 	void Scale(float factor) override;
 
 	void RTRender() const override;
 
-	void GLRenderFill(const Vector3f& fillColor) const;
-	void GLRenderWireframe(const Vector3f& wireColor) const;
+	void GLRenderFill() const;
+	void GLRenderWireframe() const;
 	void GLRender() const override;
 
 	bool Intersects(const Ray& ray, Vector3f& intersect, Vector3f& normal) override;

@@ -11,13 +11,13 @@
 #define randFloat() (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))
 #define randFloatFromTo(LO, HI) (LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO))))
 
-static int glWidth = 1000;
-static int glHeight = 1000;
+static unsigned int glWidth = 1000;
+static unsigned int glHeight = 1000;
 
 
-static int rtWidth  = 512;
-static int rtHeight = rtWidth; //square;
-static int ctr = 0;
+static unsigned int rtWidth  = 512;
+static unsigned int rtHeight = rtWidth; //square;
+static unsigned int ctr = 0;
 
 static const float newXunit = static_cast<float>(rtWidth) / static_cast<float>(glWidth);
 static const float newYunit = static_cast<float>(rtHeight) / static_cast<float>(glHeight);
@@ -34,19 +34,19 @@ void add_axis_cubes_to_scene()
 	Cube* cube5 = new Cube(Vector3f(0.0f, 1.0f, 0.0f), .1); // top cyan
 	Cube* cube6 = new Cube(Vector3f(0.0f, -1.0f, 0.0f), .1); // bottom violet
 
-	cube1->SetColor(Vector3f(1, 0, 0)); // rouge
-	cube2->SetColor(Vector3f(0, 1, 0)); // vert
-	cube3->SetColor(Vector3f(0, 0, 1)); // bleu
-	cube4->SetColor(Vector3f(1, 1, 0)); // jaune
-	cube5->SetColor(Vector3f(0, 1, 1)); // cyan
-	cube6->SetColor(Vector3f(1, 0, 1)); // violet
+	cube1->SetColor(RGBAColor(1, 0, 0)); // rouge
+	cube2->SetColor(RGBAColor(0, 1, 0)); // vert
+	cube3->SetColor(RGBAColor(0, 0, 1)); // bleu
+	cube4->SetColor(RGBAColor(1, 1, 0)); // jaune
+	cube5->SetColor(RGBAColor(0, 1, 1)); // cyan
+	cube6->SetColor(RGBAColor(1, 0, 1)); // violet
 	
-	scene->Add(cube1);
-	scene->Add(cube2);
-	scene->Add(cube3);
-	scene->Add(cube4);
-	scene->Add(cube5);
-	scene->Add(cube6);
+	scene->AddObject(cube1);
+	scene->AddObject(cube2);
+	scene->AddObject(cube3);
+	scene->AddObject(cube4);
+	scene->AddObject(cube5);
+	scene->AddObject(cube6);
 }
 
 void add_random_spheres_to_scene()
@@ -74,8 +74,8 @@ void add_random_spheres_to_scene()
 				randFloatFromTo(posMin, posMax)
 			), 
 			randFloatFromTo(sizeMin, sizeMax));
-		sphere->SetColor(Vector3f(randFloat(), randFloat(), randFloat()));
-		scene->Add(sphere);
+		sphere->SetColor(RGBAColor(randFloat(), randFloat(), randFloat()));
+		scene->AddObject(sphere);
 	}
 }
 
@@ -104,22 +104,49 @@ void add_random_cubes_to_scene()
 				randFloatFromTo(posMin, posMax)
 			), 
 			randFloatFromTo(sizeMin, sizeMax));
-		cube->SetColor(Vector3f(randFloat(), randFloat(), randFloat()));
-		scene->Add(cube);
+		cube->SetColor(RGBAColor(randFloat(), randFloat(), randFloat()));
+		scene->AddObject(cube);
 	}
+}
+
+void set_rt_test_scene()
+{
+	Light* light1 = new Light(Vector3f(0, 10, 0), RGBAColor(1, 1, 1));
+	scene->AddLight(light1);	
+	
+	//Sphere* sphere1 = new Sphere(Vector3f(-1.f, 0.5f, -1.f), .8f);
+	//Sphere* sphere2 = new Sphere(Vector3f(1.f, 0.5f, -1.f), .8f);
+	Sphere* sphere1 = new Sphere(Vector3f(.0f, .0f, -1.f), .5f);
+	Sphere* sphere2 = new Sphere(Vector3f(.0f, .0f, -2.f), .5f);
+	
+	sphere1->SetMaterial(Materials::Plastic);
+	sphere2->SetMaterial(Materials::Plastic);
+
+	sphere1->SetColor(RGBAColor(0, .5, .5));
+	sphere2->SetColor(RGBAColor(.5, .5, 0));
+		
+	scene->AddObject(sphere1);
+	scene->AddObject(sphere2);
 }
 
 void initScene()
 {
+	//scene->BackgroundColor = RGBAColor{0.26f, 0.26f, 0.26f, 1.0f};
+	scene->BackgroundColor = RGBAColor{1.f, 1.f, 1.f, 1.f};
+	scene->AmbientLighting = RGBAColor();
+	//scene->AmbientLighting = RGBAColor{.2f, .2f, .2f, 1.f};
+	//scene->AmbientLighting = RGBAColor{1.f, 0.f, 0.f, 1.f};
 	scene->Camera->SetFOV(60.0f);
 	scene->Camera->SetZPlanes(0.1f, 50.0f);
-	scene->Camera->SetPosition(Vector3f(0.0f, 0.0f, -5.0f));
-	scene->Camera->Rotate(0, 180, 0);
-	//scene->Camera->SetTarget(Vector3f(0.0f, 0.0f, -10.0f));
+	//scene->Camera->SetPosition(Vector3f(0.0f, 1.5f, 5.0f));
+	//scene->Camera->SetPosition(Vector3f(.0f, .0f, .0f));
+	scene->Camera->Rotate(0, 0, 0);
 
-	add_axis_cubes_to_scene();
+	//add_axis_cubes_to_scene();
 	//add_random_spheres_to_scene();
 	//add_random_cubes_to_scene();
+
+	set_rt_test_scene();
 	
 	//Cube* cube1 = new Cube(Vector3f(-0.0f, 0.0f, -1.0f), 0.05);
 	//cube1->SetColor(Vector3f(0.583f, 0.771f, 0.014f));
@@ -145,29 +172,13 @@ GraphicObject* pick(int x, int y)
 	const Vector3f pixel_pos = rt.getRasterToWorldSpaceCoordinates(x * newXunit, y * newYunit);
 	const auto cameraPos = rt.getCameraToWorldMatrix().leftMult(Vector3f(0, 0, 0));
 
-	const auto ray = Ray(cameraPos, pixel_pos);
-	
-	float distMin = INFINITY;
-	
-	Vector3f intersect;
-	GraphicObject* nearest = nullptr;
-	
-	for (int i = 0; i < scene->nbGraphicObject; ++i)
-	{
-		GraphicObject* obj = scene->getGraphicObject(i);
+	const Vector3f dir = (pixel_pos - cameraPos).normalize();
 
-		if (obj->Intersects(ray, intersect))
-		{
-			const float dist = (intersect - ray.Origin).length();
-
-			if (dist < distMin)
-			{
-				nearest = obj;
-				distMin = dist;
-			}
-		}
-	}
-
+	auto ray = Ray(cameraPos, dir);
+	GraphicObject* nearest = new Sphere();
+	
+	rt.cast(ray, &nearest, 1);
+	
 	return nearest;
 }
 
@@ -259,7 +270,7 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 'r':
 		std::cout << "[RAYTRACING] started rendering and exporting to png..." << std::endl;
-		rt.RenderAndSave("./test.png");
+		rt.RenderAndSave(1, "./test.png");
 		std::cout << "[RAYTRACING] done!" << std::endl;
 		break;
 	case 't':
@@ -274,7 +285,7 @@ void keyboard(unsigned char key, int x, int y)
 		add_random_spheres_to_scene();
 		
 		std::cout << "[RAYTRACING] started rendering..." << std::endl;
-		rt.Render();
+		rt.Render(1);
 		std::cout << "[RAYTRACING] done!" << std::endl;
 		break;
 	case 'p':
@@ -335,8 +346,8 @@ void keyboard(unsigned char key, int x, int y)
 
 void TestRed()
 {
-	int width = 100;
-	int height = 50;
+	unsigned int width = 100;
+	unsigned int height = 50;
 	
 	unsigned char* image = new unsigned char[width*height*4];
 
@@ -356,7 +367,7 @@ void TestRed()
 
 void rtTest() 
 {
-	rt.Render();
+	rt.Render(5);
 }
 
 void glTest(int argc, char** argv)
@@ -379,8 +390,8 @@ void glTest(int argc, char** argv)
 	std::cout << "C++ version " << __cplusplus << std::endl;
 
 	// Set basic color & shade model
-	auto clrC = scene->BackgroundColor;
-	glClearColor(clrC.X, clrC.Y, clrC.Z, 0.0);
+	auto clrC = scene->BackgroundColor * scene->AmbientLighting;
+	glClearColor(clrC.r, clrC.g, clrC.b, clrC.a);
 	glShadeModel(GL_FLAT);
 
 	scene->GL_Init();

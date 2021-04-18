@@ -16,10 +16,26 @@ Scene::Scene()
 	Camera = new ::Camera();
 }
 
-void Scene::Add(GraphicObject* obj)
+void Scene::AddObject(GraphicObject* obj)
 {
 	graphic_object_array[nbGraphicObject] = obj;
 	nbGraphicObject++;
+}
+
+void Scene::AddLight(Light* obj)
+{
+	lights_array[nbLights] = obj;
+	nbLights++;
+}
+
+int Scene::getLightNumber() const
+{
+	return nbLights;
+}
+
+Light* Scene::getLight(int i)
+{
+	return this->lights_array[i];
 }
 
 void Scene::Init()

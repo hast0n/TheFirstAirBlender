@@ -16,17 +16,21 @@ class RayTracer
 	FloatMatrix4 _camera_to_world_matrix;
 	FloatMatrix4 _world_to_camera_matrix;
 
+	static Vector3f getReflectedDirection(const Vector3f& incident, const Vector3f& normal);
+
 public:
 	RayTracer(Scene* scene, unsigned int pixelWidth, unsigned int pixelHeight);
 	
-	void Render();
+	void Render(int max_ray_depth);
 
-	void RenderAndSave(std::string file_path);
+	void RenderAndSave(int max_ray_depth, std::string file_path);
 
 	void initTransformMatrix();
 	
-	Vector3f getRasterToWorldSpaceCoordinates(unsigned x, unsigned y);
-
+	Vector3f getRasterToWorldSpaceCoordinates(unsigned x, unsigned y) const;
+	
+	RGBAColor cast(Ray& ray, GraphicObject** nearest, int max_ray_depth) const;
+	
 	FloatMatrix4 getCameraToWorldMatrix() const;
 
 	FloatMatrix4 getWorldToCameraMatrix() const;
@@ -34,5 +38,16 @@ public:
 	float getWidth() const;
 
 	float getHeight() const;
-};
 
+	RGBAColor getIllumination(
+		Ray& ray, 
+		Vector3f intersect, 
+		Vector3f normal, 
+		Materials::Material material) const;
+
+	RGBAColor getPhong(
+		Ray& ray, 
+		Vector3f intersect, 
+		Vector3f normal, 
+		Materials::Material material) const;
+};

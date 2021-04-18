@@ -140,7 +140,7 @@ Vector3f FloatMatrix4::leftMult(const Vector3f& vect) const
 		newArray[i] = sum;		
 	}
 	
-	return Vector3f(newArray[0], newArray[1], newArray[2]); // / vectArray[3];
+	return Vector3f(newArray[0], newArray[1], newArray[2]);// / vectArray[3];
 }
 
 Vector3f FloatMatrix4::rightMult(const Vector3f& vect) const // right side mult (4x4.4x1 -> 4x1)
@@ -162,7 +162,7 @@ Vector3f FloatMatrix4::rightMult(const Vector3f& vect) const // right side mult 
 		newArray[i] = sum;		
 	}
 	
-	return Vector3f(newArray[0], newArray[1], newArray[2]); // / vectArray[3];
+	return Vector3f(newArray[0], newArray[1], newArray[2]);// / vectArray[3];
 }
 
 FloatMatrix4 FloatMatrix4::leftMult(const FloatMatrix4& mat) const

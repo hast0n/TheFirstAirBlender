@@ -8,6 +8,12 @@ Sphere::Sphere(const Vector3f& center, float radius): GraphicObject()
 	Radius = radius;
 }
 
+Sphere::Sphere()
+{
+	Pos = Vector3f();
+	Radius = 1.f;
+}
+
 void Sphere::Move(const Vector3f& vect3)
 {
 	this->Pos += vect3;
@@ -23,9 +29,10 @@ void Sphere::RTRender() const
 
 }
 
-void Sphere::GLRenderFill(const Vector3f& fillColor) const
+void Sphere::GLRenderFill() const
 {
-	glColor3f(fillColor.X, fillColor.Y, fillColor.Z);
+	auto c = getColor();
+	glColor3f(c.r, c.g, c.b);
 
 	//glMatrixMode(GL_MODELVIEW);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -33,9 +40,10 @@ void Sphere::GLRenderFill(const Vector3f& fillColor) const
 	GLAddToDisplayList();
 }
 
-void Sphere::GLRenderWireframe(const Vector3f& wireColor) const
+void Sphere::GLRenderWireframe() const
 {
-	glColor3f(wireColor.X, wireColor.Y, wireColor.Z);
+	auto c = getColor();
+	glColor3f(c.r, c.g, c.b);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -44,9 +52,8 @@ void Sphere::GLRenderWireframe(const Vector3f& wireColor) const
 
 void Sphere::GLRender() const
 {
-	if (this->Color == Vector3f(NULL, NULL, NULL))
-		GLRenderFill(Vector3f(1.0, 0.0, 1.0));
-	else GLRenderFill(this->Color);
+	//GLRenderFill(this->Color);
+	GLRenderFill();
 
 	//GLRenderWireframe(Vector3f(1.0, 0.0, 0.0));
 }

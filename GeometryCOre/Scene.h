@@ -1,23 +1,29 @@
 #pragma once
 #include "Camera.h"
 #include "GraphicObject.h"
+#include "Light.h"
 
 class Scene
 {
 	bool _camera_modified = true;
 	
 public:
-	Camera* Camera;
-	
-	GraphicObject* graphic_object_array[270000]{};
 	int nbGraphicObject = 0;
+	int nbLights = 0;
 
-	Vector3f BackgroundColor = Vector3f(0.26f, 0.26f, 0.26f);
+	Camera* Camera;
+	Light* lights_array[10]{};
+	GraphicObject* graphic_object_array[1000]{};
+
+	RGBAColor BackgroundColor = RGBAColor{.0f, .0f, .0f, 1.f};
+	RGBAColor AmbientLighting = RGBAColor{1.f, 1.f, 1.f, 1.f};
 
 	Scene();
-	~Scene(); // Scene will only be deleted on program exit (for now)
+	~Scene();
 
-	void Add(GraphicObject* obj);
+	void AddObject(GraphicObject* obj);
+
+	void AddLight(Light* obj);
 
 	void Init();
 
@@ -31,5 +37,9 @@ public:
 
 	int getGraphicObjectNumber() const;
 	
+	int getLightNumber() const;
+	
 	GraphicObject* getGraphicObject(int i);
+	
+	Light* getLight(int i);
 };

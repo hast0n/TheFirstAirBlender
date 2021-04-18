@@ -105,9 +105,9 @@ void Camera::SetPosition(const Vector3f& vect)
 {
 	//_position = vect;
 	//set_up_vector();
-	_state.setValue(3, 0, vect.X);
-	_state.setValue(3, 1, vect.Y);
-	_state.setValue(3, 2, vect.Z);
+	_state.setValue(3, 0, - vect.X);
+	_state.setValue(3, 1, - vect.Y);
+	_state.setValue(3, 2, - vect.Z);
 }
 
 //void Camera::SetTarget(const Vector3f& vect)

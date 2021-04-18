@@ -7,6 +7,6 @@ struct Ray
 	Vector3f Destination;
 	Vector3f Origin;
 	
-	Ray(Vector3f origin, Vector3f dest);
+	Ray(Vector3f origin, Vector3f dir);
 };
 

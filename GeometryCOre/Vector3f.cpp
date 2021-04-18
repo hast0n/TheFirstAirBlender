@@ -1,34 +1,11 @@
 #include <iostream>
 #include "Vector3f.h"
 
-Vector3f::Vector3f()
-{
-	X = 0;
-	Y = 0;
-	Z = 0;
+Vector3f::Vector3f() :X(0), Y(0), Z(0) {}
 
-	m[0] = 0;
-	m[1] = 0;
-	m[2] = 0;
-}
+Vector3f::Vector3f(float x, float y, float z) :X(x), Y(y), Z(z) {}
 
-Vector3f::Vector3f(float x, float y, float z) :X(x), Y(y), Z(z)
-{
-	m[0] = x;
-	m[1] = y;
-	m[2] = z;
-}
-
-Vector3f::Vector3f(const Vector3f& v)
-{
-	X = v.X;
-	Y = v.Y;
-	Z = v.Z;
-
-	m[0] = v.X;
-	m[1] = v.Y;
-	m[2] = v.Z;
-}
+Vector3f::Vector3f(const Vector3f& v) :X(v.X), Y(v.Y), Z(v.Z) {}
 
 Vector3f Vector3f::operator+(float f) const
 {
@@ -127,14 +104,6 @@ bool Vector3f::operator==(const Vector3f& v2) const
 		Z == v2.Z;
 }
 
-//Vector3f& Vector3f::operator=(const Vector3f& v2)
-//{
-//	X = v2.X;
-//	Y = v2.Y;
-//	Z = v2.Z;
-//	return *this;
-//}
-
 Vector3f Vector3f::operator^(const Vector3f& v2) const // Produit vectoriel (normale - wedge product)
 {
 	return Vector3f(
@@ -155,9 +124,23 @@ float Vector3f::length() const
 	return sqrt((X * X) + (Y * Y) + (Z * Z));
 }
 
-Vector3f operator/(int lhs, const Vector3f& rhs)
+::Vector3f& Vector3f::operator+=(float f)
+{
+	X = X + f;
+	Y = Y + f;
+	Z = Z + f;
+
+	return *this;
+}
+
+Vector3f operator/(float lhs, const Vector3f& rhs)
 {
 	return Vector3f(lhs / rhs.X, lhs / rhs.Y, lhs / rhs.Z);
+}
+
+Vector3f operator*(float lhs, const Vector3f& rhs)
+{
+	return rhs * lhs;
 }
 
 std::ostream& operator<<(std::ostream& out, Vector3f v)

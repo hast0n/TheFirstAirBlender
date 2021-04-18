@@ -1,14 +1,11 @@
 #include "glut.h"
 #include "Cube.h"
-
 #include <windows.h>
 
 Cube::Cube(const Vector3f& cubePosition, float cubeSize): GraphicObject()
 {
 	Pos = cubePosition;
 	Size = cubeSize;
-
-	Color = Vector3f(1.0, 0.0, 1.0);
 	
 	GenerateVertexBuffers();
 	LogInit();
@@ -32,10 +29,11 @@ void Cube::RTRender() const
 
 }
 
-void Cube::GLRenderFaces(const Vector3f& faceColor) const
+void Cube::GLRenderFaces() const
 {
 	glMatrixMode(GL_MODELVIEW);
-	glColor3f(faceColor.X, faceColor.Y, faceColor.Z);
+	auto c = getColor();
+	glColor3f(c.r, c.g, c.b);
 
 	//glPopMatrix();
 	
@@ -55,9 +53,10 @@ void Cube::GLRenderFaces(const Vector3f& faceColor) const
 	//glPushMatrix();
 }
 
-void Cube::GLRenderWireframe(const Vector3f& wireColor) const
+void Cube::GLRenderWireframe() const
 {
-	glColor3f(wireColor.X, wireColor.Y, wireColor.Z);
+	auto c = getColor();
+	glColor3f(c.r, c.g, c.b);
 
 	glBegin(GL_LINES);
 
@@ -74,7 +73,7 @@ void Cube::GLRenderWireframe(const Vector3f& wireColor) const
 
 void Cube::GLRender() const
 {
-	GLRenderFaces(this->Color);
+	GLRenderFaces();
 
 	//GLRenderWireframe(Vector3f(1.0, 0.0, 0.0));
 }
@@ -123,7 +122,7 @@ bool Cube::Intersects(const Ray& ray, Vector3f& intersect, Vector3f& normal)
     } 
 	
     intersect = ray.Origin + ray.Direction * t;
-	//normal = ;
+	//normal = ( - Pos).normalize();
 	
     return true; 
 }

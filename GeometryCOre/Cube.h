@@ -16,8 +16,8 @@ public:
 
 	void RTRender() const override;
 
-	void GLRenderFaces(const Vector3f& faceColor) const;
-	void GLRenderWireframe(const Vector3f& wireColor) const;
+	void GLRenderFaces() const;
+	void GLRenderWireframe() const;
 	void GLRender() const override;
 	bool Intersects(const Ray& ray, Vector3f& intersect, Vector3f& normal) override;
 
