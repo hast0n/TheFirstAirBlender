@@ -29,7 +29,7 @@ public:
 	
 	Vector3f getRasterToWorldSpaceCoordinates(unsigned x, unsigned y) const;
 	
-	RGBAColor cast(Ray& ray, GraphicObject** nearest, int max_ray_depth) const;
+	RGBAColor cast(Ray& ray, GraphicObject** nearest, int max_ray_depth, bool getColor = true) const;
 	
 	FloatMatrix4 getCameraToWorldMatrix() const;
 
@@ -50,4 +50,6 @@ public:
 		Vector3f intersect, 
 		Vector3f normal, 
 		Materials::Material material) const;
+
+	bool isInShadow(Vector3f& intersect, Vector3f lighPos) const;
 };

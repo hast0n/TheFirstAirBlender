@@ -15,7 +15,7 @@ static unsigned int glWidth = 1000;
 static unsigned int glHeight = 1000;
 
 
-static unsigned int rtWidth  = 512;
+static unsigned int rtWidth  = 1000;
 static unsigned int rtHeight = rtWidth; //square;
 static unsigned int ctr = 0;
 
@@ -74,7 +74,9 @@ void add_random_spheres_to_scene()
 				randFloatFromTo(posMin, posMax)
 			), 
 			randFloatFromTo(sizeMin, sizeMax));
-		sphere->SetColor(RGBAColor(randFloat(), randFloat(), randFloat()));
+		sphere->SetMaterial(Materials::MirrorLike); 
+		sphere->SetColor(RGBAColor(0.9, .9, .9));
+		//sphere->SetColor(RGBAColor(randFloat(), randFloat(), randFloat()));
 		scene->AddObject(sphere);
 	}
 }
@@ -119,11 +121,11 @@ void set_rt_test_scene()
 	Sphere* sphere1 = new Sphere(Vector3f(.0f, .0f, -1.f), .5f);
 	Sphere* sphere2 = new Sphere(Vector3f(.0f, .0f, -2.f), .5f);
 	
-	sphere1->SetMaterial(Materials::Plastic);
+	sphere1->SetMaterial(Materials::MirrorLike);
 	sphere2->SetMaterial(Materials::Plastic);
 
-	sphere1->SetColor(RGBAColor(0, .5, .5));
-	sphere2->SetColor(RGBAColor(.5, .5, 0));
+	sphere1->SetColor(RGBAColor(0.92, .8, .2));
+	sphere2->SetColor(RGBAColor(1., 1., 0));
 		
 	scene->AddObject(sphere1);
 	scene->AddObject(sphere2);
@@ -177,7 +179,7 @@ GraphicObject* pick(int x, int y)
 	auto ray = Ray(cameraPos, dir);
 	GraphicObject* nearest = new Sphere();
 	
-	rt.cast(ray, &nearest, 1);
+	rt.cast(ray, &nearest, 1 ,false);
 	
 	return nearest;
 }
@@ -268,9 +270,19 @@ void keyboard(unsigned char key, int x, int y)
 	case '4':
 		r.Y = -rotate_unit;
 		break;
-	case 'r':
-		std::cout << "[RAYTRACING] started rendering and exporting to png..." << std::endl;
+	case 'j':
+		std::cout << "[RAYTRACING] started rendering (max_depth = 0) and exporting to png..." << std::endl;
+		rt.RenderAndSave(0, "./test.png");
+		std::cout << "[RAYTRACING] done!" << std::endl;
+		break;
+	case 'k':
+		std::cout << "[RAYTRACING] started rendering (max_depth = 1) and exporting to png..." << std::endl;
 		rt.RenderAndSave(1, "./test.png");
+		std::cout << "[RAYTRACING] done!" << std::endl;
+		break;
+	case 'l':
+		std::cout << "[RAYTRACING] started rendering (max_depth = 2) and exporting to png..." << std::endl;
+		rt.RenderAndSave(2, "./test.png");
 		std::cout << "[RAYTRACING] done!" << std::endl;
 		break;
 	case 't':
@@ -317,9 +329,9 @@ void keyboard(unsigned char key, int x, int y)
 		scene->Camera->GL_LoadPerspective();
 		std::cout << "[CAMERA] set FOV to " << fov - fov_unit << std::endl;
 		break;
-	case '&':
-		std::cout << "[CAMERA] current state: " << scene->Camera->getState() << std::endl;
-		break;
+	//case '&':
+	//	std::cout << "[CAMERA] current state: " << scene->Camera->getState() << std::endl;
+	//	break;
 	case '<':
 		std::cout << "[SCENE] reset scene!" << std::endl;
 		for (int i = 0; i < nb; i++)

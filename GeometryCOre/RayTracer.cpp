@@ -11,6 +11,7 @@
 #include "Sphere.h"
 
 # define M_PI 3.14159265358979323846  /* pi */
+# define EPSILON 0.0001  /* min value for ray intersection distance else ignore */
 
 RayTracer::RayTracer(Scene* scene, unsigned pixelWidth, unsigned pixelHeight)
 {
@@ -77,7 +78,7 @@ Vector3f RayTracer::getReflectedDirection(const Vector3f& incident, const Vector
 	return (incident - 2 * (normal * incident) * normal).normalize();
 }
 
-RGBAColor RayTracer::cast(Ray& ray, GraphicObject** nearest, int max_ray_depth) const
+RGBAColor RayTracer::cast(Ray& ray, GraphicObject** nearest, int max_ray_depth, bool getColor) const
 {
 	// return no illumination if max recursion reached
 	if (max_ray_depth < 0) return RGBAColor{0, 0, 0, 1};
@@ -99,7 +100,7 @@ RGBAColor RayTracer::cast(Ray& ray, GraphicObject** nearest, int max_ray_depth) 
 		{
 			const float dist = (p - ray.Origin).length();
 
-			if (dist < distMin)
+			if (dist < distMin && dist > EPSILON)
 			{
 				*nearest = obj;
 				intersect = p;
@@ -110,20 +111,17 @@ RGBAColor RayTracer::cast(Ray& ray, GraphicObject** nearest, int max_ray_depth) 
 		}
 	}
 
-	if (found)
+	if (found && getColor)
 	{
-		RGBAColor c0 = this->getIllumination(ray, intersect, normal, (*nearest)->getMaterial());
+		auto material = (*nearest)->getMaterial();
+		RGBAColor c0 = this->getIllumination(ray, intersect, normal, material);
 		
 		auto rdir = getReflectedDirection(ray.Direction, normal);
 		Ray rray = Ray(intersect, rdir);
 		const RGBAColor c1 = cast(rray, nearest, --max_ray_depth);
-		
-		color = RGBAColor( //TODO: add depth > 0
-			c0.r + c1.r,
-			c0.g + c1.g,
-			c0.b + c1.b,
-			c0.a + c1.a
-		).capped();
+
+		color = (c0 + c1 * material.reflectance) * (material.is_metallic ? material.finish : RGBAColor(1, 1, 1));
+		color = (color).capped();
 	}
 
 	return color;
@@ -158,32 +156,46 @@ RGBAColor RayTracer::getIllumination(Ray& ray, Vector3f intersect, Vector3f norm
 RGBAColor RayTracer::getPhong(Ray& ray, Vector3f intersect, Vector3f normal,
 	Materials::Material material) const
 {
-	RGBAColor ambientColor = _scene->AmbientLighting * material.finish;
+	const RGBAColor ambientColor = _scene->AmbientLighting * material.finish;
 	RGBAColor diffuseColor = RGBAColor();
 	RGBAColor specularColor = RGBAColor();
 
 	for (int i = 0; i < _scene->nbLights; ++i)
 	{
 		Light* light = _scene->getLight(i);
+
+		if (isInShadow(intersect, light->getPosition())) continue;
 		
 		Vector3f L = (light->getPosition() - intersect).normalize(); //intercept to light vector
 		Vector3f R = getReflectedDirection(-L, normal);
 		Vector3f V = (ray.Origin - intersect).normalize();
 		
 		float diffuse = (L * normal) * material.diffuse; // * ;
-		diffuseColor = (material.finish * diffuse).capped();
+		diffuseColor += (material.finish * diffuse).capped();
 
 		auto t = R * V;
 		if (t > 0)
 		{
 			float specular = std::pow(t, material.shininess) * material.specular;
-			specularColor = light->getColor() * specular;
+
+			specularColor += material.is_metallic ? light->getColor() * material.finish * specular : light->getColor() * specular;
 		}
 		
 	}
 
-	//return (ambientColor + diffuseColor + specularColor).capped();
-	return material.finish;
+	return (ambientColor + diffuseColor + specularColor).capped();
+}
+
+bool RayTracer::isInShadow(Vector3f& intersect, Vector3f lightPos) const
+{
+	GraphicObject* base = new Sphere();
+	GraphicObject* block = base;
+	const Vector3f dir = (lightPos - intersect).normalize();
+	auto ray = Ray(intersect, dir);
+
+	cast(ray, &block, 0, false);
+
+	return block != base;
 }
 
 void RayTracer::RenderAndSave(int max_ray_depth, std::string file_path)

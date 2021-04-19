@@ -44,11 +44,21 @@ struct RGBAColor
 	RGBAColor capped()
 	{
 		return RGBAColor{
-			r = cap(r),
-			g = cap(g),
-			b = cap(b),
-			a = cap(a)
+			cap(r),
+			cap(g),
+			cap(b),
+			cap(a)
 		};
+	}
+
+	RGBAColor& operator+=(const RGBAColor& c)
+	{
+		r = c.r + r;
+		g = c.g + g;
+		b = c.b + b;
+		a = c.a + a;
+
+		return *this;
 	}
 
 private:
@@ -65,43 +75,50 @@ namespace Materials
 	{
 		RGBAColor finish; //color
 
-		float ambient;
 		float diffuse;
 		float specular;
 		float emission;
-		
+
+		float reflectance;
 		float shininess; // 0.0f .. 128.0f
 
 		bool is_transparent;
+		bool is_metallic;
 	};
 
 	const Material MirrorLike = {
-		RGBAColor(1, 1, 1),
+		RGBAColor(1, .5, 0),
+
+		1,
+		1,
 		0,
-		0,
-		0,
-		0,
-		128,
-		false
+		1,
+		250,
+		false,
+		true
 	};
 
 	const Material Plastic = {
 	RGBAColor(1, 0, 1),
-	0.05,
+
 	0.8,
-	1,
+	0.04,
 	0,
-	128,
+	0,
+	2,
+	false,
 	false
 	};
 
 	const Material Default = {
 		RGBAColor(1, 1, 1),
-		0.05,
+
 		1,
 		0.5,
 		0.0,
+		0.2,
 		100,
+		false,
 		false
 	};
 
