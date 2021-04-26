@@ -1,23 +1,24 @@
 #include <windows.h>  // For MS Windows
 #include <glut.h>
 #include <iostream>
+#include <sstream>
 #include "Cube.h"
 #include "Sphere.h"
 #include "Scene.h"
-#include "PNGExporter.h"
 #include "RayTracer.h"
 
 //https://stackoverflow.com/a/686373
 #define randFloat() (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))
 #define randFloatFromTo(LO, HI) (LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO))))
+#define randInt(LO, HI) (LO + (rand() % static_cast<int>(HI - LO + 1)))
+#define degToRad(deg) (deg * 3.14159265358979323846 / 180)
+
+static unsigned int rtWidth  = 1000;
+static unsigned int rtHeight = 1000;
+static unsigned int ctr = 0;
 
 static unsigned int glWidth = 1000;
 static unsigned int glHeight = 1000;
-
-
-static unsigned int rtWidth  = 1000;
-static unsigned int rtHeight = rtWidth; //square;
-static unsigned int ctr = 0;
 
 static const float newXunit = static_cast<float>(rtWidth) / static_cast<float>(glWidth);
 static const float newYunit = static_cast<float>(rtHeight) / static_cast<float>(glHeight);
@@ -51,22 +52,22 @@ void add_axis_cubes_to_scene()
 
 void add_random_spheres_to_scene()
 {
-	//Sphere* sphere1 = new Sphere(Vector3f(0.2, 0, -1), 0.2f);
-	//sphere1->SetColor(Vector3f(0.0, 1.0, 0.0));
-	//scene->Add(sphere1);
-
-	//Sphere* sphere2 = new Sphere(Vector3f(-0.2, 0, -1), 0.2f);
-	//sphere2->SetColor(Vector3f(1.0, 1.0, 1.0));
-	//scene->Add(sphere2);
-
-	float posMin = -8;
-	float posMax = 8;
+	float posMin = -30;
+	float posMax = 30;
 	
 	float sizeMin = 1;
-	float sizeMax = 5;
-	
-	for (int i = 0; i < 20; ++i)
+	float sizeMax = 4;
+
+	Materials::Material mat_array[3] = {
+		Materials::Plastic,
+		Materials::MirrorLike,
+		Materials::Default
+	};
+
+	for (int i = 0; i < 10; ++i)
 	{
+		auto a = randInt(0, 2);
+		Materials::Material mat = mat_array[a]; //TODO: fix: assigns same material to each sphere
 		Sphere* sphere = new Sphere(
 			Vector3f(
 				randFloatFromTo(posMin, posMax),
@@ -74,9 +75,9 @@ void add_random_spheres_to_scene()
 				randFloatFromTo(posMin, posMax)
 			), 
 			randFloatFromTo(sizeMin, sizeMax));
-		sphere->SetMaterial(Materials::MirrorLike); 
-		sphere->SetColor(RGBAColor(0.9, .9, .9));
-		//sphere->SetColor(RGBAColor(randFloat(), randFloat(), randFloat()));
+		sphere->SetMaterial(mat); 
+		//sphere->SetColor(RGBAColor(0.9, .9, .9));
+		sphere->SetColor(RGBAColor(randFloat(), randFloat(), randFloat()));
 		scene->AddObject(sphere);
 	}
 }
@@ -111,10 +112,84 @@ void add_random_cubes_to_scene()
 	}
 }
 
+void render_frames_360_animation(const float dist, const float height)
+{	
+	const int fps = 60; // frame rate
+	const int duration = 6; // secondes
+
+	const float angle = 360;
+	const int nbFrames = fps * duration;
+	const float unit = static_cast<float>(angle) / static_cast<float>(nbFrames); // one rotation around scene
+		
+	std::string folderPath = "./animation/";
+	std::cout << "[ANIMATION] Render started < " << duration << "s | " << fps << "fps >" <<  std::endl;
+
+	std::ostringstream repeated;
+	fill_n(std::ostream_iterator<std::string>(repeated), 30, std::string(" "));
+	std::cout << "[ANIMATION] [" << repeated.str() << "] - 0%" << '\r';
+	
+	for (int i = 0; i < nbFrames; i++)
+	{
+		scene->Camera->Reset();
+		scene->Camera->Rotate(0, - i * unit, 0);
+		scene->Camera->Translate(Vector3f(0, height, dist));
+		
+		std::ostringstream filename;
+		filename << "animationFrame_" << i << ".png";
+
+		std::string filePath = folderPath + filename.str();
+
+		rt.RenderAndSave(2, filePath);
+
+		const float done = static_cast<float>(i) / nbFrames;
+		const int hashtags = static_cast<int>(30 * done);
+
+		repeated.str(""); repeated.clear();
+		fill_n(std::ostream_iterator<std::string>(repeated), hashtags, std::string("#"));
+		fill_n(std::ostream_iterator<std::string>(repeated), 30 - hashtags, std::string(" "));
+		std::cout << "[ANIMATION] [" << repeated.str() << "] - " << static_cast<int>(done * 100) << "%  " << '\r';
+	}
+
+	std::cout << "[ANIMATION] Render complete. Files saved in " << folderPath << " folder." << std::endl;
+}
+
+// 1 light; 2 spheres
 void set_rt_test_scene()
 {
 	Light* light1 = new Light(Vector3f(0, 10, 0), RGBAColor(1, 1, 1));
 	scene->AddLight(light1);	
+	
+	//Sphere* sphere1 = new Sphere(Vector3f(-1.f, 0.5f, -1.f), .8f);
+	//Sphere* sphere2 = new Sphere(Vector3f(1.f, 0.5f, -1.f), .8f);
+	Sphere* sphere1 = new Sphere(Vector3f(.0f, .0f, -.55f), .5f);
+	Sphere* sphere2 = new Sphere(Vector3f(.0f, .0f, .55f), .5f);
+	
+	sphere1->SetMaterial(Materials::MirrorLike);
+	sphere2->SetMaterial(Materials::Plastic);
+
+	sphere1->SetColor(RGBAColor(0.92, .8, .2));
+	sphere2->SetColor(RGBAColor(0., 1., 1));
+		
+	scene->AddObject(sphere1);
+	scene->AddObject(sphere2);
+
+	scene->Camera->SetPosition(Vector3f(0, 0, 2));
+	scene->Camera->Rotate(0, 0, 0);
+
+	//render_frames_360_animation();
+}
+
+// 4 lights; 1 sphere
+void set_rt_test_scene_2()
+{
+	Light* light1 = new Light(Vector3f(0, 10, 0), RGBAColor(1, 1, 1));
+	scene->AddLight(light1);	
+	Light* light2 = new Light(Vector3f(0, 10, 0), RGBAColor(1, 1, 1));
+	scene->AddLight(light2);	
+	Light* light3 = new Light(Vector3f(0, 10, 0), RGBAColor(1, 1, 1));
+	scene->AddLight(light3);	
+	Light* light4 = new Light(Vector3f(0, 10, 0), RGBAColor(1, 1, 1));
+	scene->AddLight(light4);
 	
 	//Sphere* sphere1 = new Sphere(Vector3f(-1.f, 0.5f, -1.f), .8f);
 	//Sphere* sphere2 = new Sphere(Vector3f(1.f, 0.5f, -1.f), .8f);
@@ -133,38 +208,28 @@ void set_rt_test_scene()
 
 void initScene()
 {
-	//scene->BackgroundColor = RGBAColor{0.26f, 0.26f, 0.26f, 1.0f};
-	scene->BackgroundColor = RGBAColor{1.f, 1.f, 1.f, 1.f};
+	//scene->BackgroundColor = RGBAColor{1.f, 1.f, 1.f, 1.f};
+	scene->BackgroundColor = RGBAColor{0.26f, 0.26f, 0.26f, 1.0f};
 	scene->AmbientLighting = RGBAColor();
-	//scene->AmbientLighting = RGBAColor{.2f, .2f, .2f, 1.f};
-	//scene->AmbientLighting = RGBAColor{1.f, 0.f, 0.f, 1.f};
-	scene->Camera->SetFOV(60.0f);
+	scene->Camera->SetFOV(80.0f);
 	scene->Camera->SetZPlanes(0.1f, 50.0f);
-	//scene->Camera->SetPosition(Vector3f(0.0f, 1.5f, 5.0f));
-	//scene->Camera->SetPosition(Vector3f(.0f, .0f, .0f));
-	scene->Camera->Rotate(0, 0, 0);
+	scene->Camera->SetAspectRatio(static_cast<float>(rtWidth) / rtHeight);	
 
-	//add_axis_cubes_to_scene();
-	//add_random_spheres_to_scene();
-	//add_random_cubes_to_scene();
-
-	set_rt_test_scene();
+	Light* light1 = new Light(Vector3f(-5, 10, -5), RGBAColor(1, 1, 1));
+	scene->AddLight(light1);
+	//Light* light2 = new Light(Vector3f(-5, 10, 5), RGBAColor(1, 1, 1));
+	//scene->AddLight(light2);	
+	//Light* light3 = new Light(Vector3f(5, 10, -5), RGBAColor(1, 1, 1));
+	//scene->AddLight(light3);	
+	//Light* light4 = new Light(Vector3f(5, 10, 5), RGBAColor(1, 1, 1));
+	//scene->AddLight(light4);
 	
-	//Cube* cube1 = new Cube(Vector3f(-0.0f, 0.0f, -1.0f), 0.05);
-	//cube1->SetColor(Vector3f(0.583f, 0.771f, 0.014f));
-	//scene->Add(cube1);
+	//add_axis_cubes_to_scene();
+	add_random_spheres_to_scene();
+	//add_random_cubes_to_scene();
+	//set_rt_test_scene();
 
-	//Cube* cube2 = new Cube(Vector3f(0, 0, -3), 1);
-	//cube2->SetColor(Vector3f(0.195f, 0.548f, 0.859f));
-	//scene->Add(cube2);
-
-	//Cube* cube3 = new Cube(Vector3f(-2, 0, -2), 1);
-	//cube3->SetColor(Vector3f(0.053f, 0.959f, 0.120f));
-	//scene->Add(cube3);
-
-	//Plane* plane1 = new Plane(Vector3f(0.0f, -.5f, 0.0f), 3.0f);
-	//plane1->SetColor(Vector3f(0.0f, 0.0f, 1.0f));
-	//scene->Add(plane1);
+	//render_frames_360_animation(30, 0);
 }
 
 GraphicObject* pick(int x, int y)
@@ -174,14 +239,14 @@ GraphicObject* pick(int x, int y)
 	const Vector3f pixel_pos = rt.getRasterToWorldSpaceCoordinates(x * newXunit, y * newYunit);
 	const auto cameraPos = rt.getCameraToWorldMatrix().leftMult(Vector3f(0, 0, 0));
 
-	const Vector3f dir = (pixel_pos - cameraPos).normalize();
+	const Vector3f dir = (pixel_pos - cameraPos).normalized();
 
 	auto ray = Ray(cameraPos, dir);
-	GraphicObject* nearest = new Sphere();
+
+	GraphicObject* nearest = nullptr;
+	Vector3f normal, intersect;
 	
-	rt.cast(ray, &nearest, 1 ,false);
-	
-	return nearest;
+	return rt.getNearest(ray, normal, intersect);
 }
 
 void mouse(int button, int state, int x, int y)
@@ -224,6 +289,7 @@ void keyboard(unsigned char key, int x, int y)
 
 	float rotate_unit = 5.0f;
 	float translate_unit = .5f;
+	float small_translate_unit = .1f;
 	float zFar_unit = 2.0f;
 	float fov_unit = 5.0f;
 
@@ -252,6 +318,18 @@ void keyboard(unsigned char key, int x, int y)
 	case ' ':
 		t.Y = translate_unit;
 		break;
+	case 'Z':
+		t.Z = -small_translate_unit;
+		break;
+	case 'Q':
+		t.X = -small_translate_unit;
+		break;
+	case 'S':
+		t.Z = small_translate_unit;
+		break;
+	case 'D':
+		t.X = small_translate_unit;
+		break;
 	case '9':
 		r.Z = rotate_unit;
 		break;
@@ -271,34 +349,24 @@ void keyboard(unsigned char key, int x, int y)
 		r.Y = -rotate_unit;
 		break;
 	case 'j':
-		std::cout << "[RAYTRACING] started rendering (max_depth = 0) and exporting to png..." << std::endl;
-		rt.RenderAndSave(0, "./test.png");
-		std::cout << "[RAYTRACING] done!" << std::endl;
+		std::cout << "[RAYTRACING] Render started | No global illumination | max_depth = 0" << std::endl;
+		rt.RenderAndSaveFlat(0, "./test_flat.png");
+		std::cout << "[RAYTRACING] Done! Saved as 'test_flat.png'" << std::endl;
 		break;
 	case 'k':
-		std::cout << "[RAYTRACING] started rendering (max_depth = 1) and exporting to png..." << std::endl;
-		rt.RenderAndSave(1, "./test.png");
-		std::cout << "[RAYTRACING] done!" << std::endl;
+		std::cout << "[RAYTRACING] Render started | max_depth = 0" << std::endl;
+		rt.RenderAndSave(0, "./test_depth_0.png");
+		std::cout << "[RAYTRACING] Done! Saved as 'test_depth_0.png'" << std::endl;
 		break;
 	case 'l':
-		std::cout << "[RAYTRACING] started rendering (max_depth = 2) and exporting to png..." << std::endl;
-		rt.RenderAndSave(2, "./test.png");
-		std::cout << "[RAYTRACING] done!" << std::endl;
+		std::cout << "[RAYTRACING] Render started | max_depth = 1" << std::endl;
+		rt.RenderAndSave(1, "./test_depth_1.png");
+		std::cout << "[RAYTRACING] Done! Saved as 'test_depth_1.png'" << std::endl;
 		break;
-	case 't':
-		std::cout << "[RAYTRACING] shuffling scene..." << std::endl;
-		//Delete rt generated pixel cubes
-		for (int i = 0; i < nb; i++)
-		{
-			scene->Remove(i);
-		}
-		
-		add_axis_cubes_to_scene();
-		add_random_spheres_to_scene();
-		
-		std::cout << "[RAYTRACING] started rendering..." << std::endl;
-		rt.Render(1);
-		std::cout << "[RAYTRACING] done!" << std::endl;
+	case 'm':
+		std::cout << "[RAYTRACING] Render started | max_depth = 2" << std::endl;
+		rt.RenderAndSave(2, "./test_depth_2.png");
+		std::cout << "[RAYTRACING] Done! Saved as 'test_depth_2.png'" << std::endl;
 		break;
 	case 'p':
 		scene->Camera->ResetPosition();
@@ -307,7 +375,7 @@ void keyboard(unsigned char key, int x, int y)
 		scene->Camera->ResetRotation();
 		break;
 	case 'i':
-		scene->Camera->CleanState();
+		scene->Camera->Reset();
 		break;
 	case '+':
 		scene->Camera->SetZPlanes(zNear, zFar + zFar_unit);
@@ -351,38 +419,12 @@ void keyboard(unsigned char key, int x, int y)
 
 	// Apply transform on Camera
 	scene->Camera->Rotate(r.X, r.Y, r.Z);
-	scene->Camera->Translate(-t); // translating the world, relative to camera
+	scene->Camera->Translate(t); // translating the world, relative to camera
 	
 	glutPostRedisplay();
 }
 
-void TestRed()
-{
-	unsigned int width = 100;
-	unsigned int height = 50;
-	
-	unsigned char* image = new unsigned char[width*height*4];
-
-	for(unsigned y = 0; y < height; y++) {
-		for(unsigned x = 0; x < width; x++) {
-		    image[4 * width * y + 4 * x + 0] = 255;
-		    image[4 * width * y + 4 * x + 1] = 0;
-		    image[4 * width * y + 4 * x + 2] = 0;
-		    image[4 * width * y + 4 * x + 3] = 255;
-		}
-	}
-
-	
-	PNGExporter exporter = PNGExporter(image, 10, 5);
-	exporter.Export("test.png");
-}
-
-void rtTest() 
-{
-	rt.Render(5);
-}
-
-void glTest(int argc, char** argv)
+void glInit(int argc, char** argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
@@ -413,10 +455,11 @@ void glTest(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-	initScene();
+	// init rand seed
+	srand(time(NULL));
 	
-	//rtTest();
-	glTest(argc, argv);
+	initScene();
+	glInit(argc, argv);
 	
 	return 0;
 }

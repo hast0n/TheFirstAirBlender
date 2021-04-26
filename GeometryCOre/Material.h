@@ -82,6 +82,8 @@ namespace Materials
 		float reflectance;
 		float shininess; // 0.0f .. 128.0f
 
+		float fuzz;
+
 		bool is_transparent;
 		bool is_metallic;
 	};
@@ -94,6 +96,7 @@ namespace Materials
 		0,
 		1,
 		250,
+		0,
 		false,
 		true
 	};
@@ -102,10 +105,11 @@ namespace Materials
 	RGBAColor(1, 0, 1),
 
 	0.8,
-	0.04,
+	0.08,
 	0,
-	0,
-	2,
+	0.1,
+	10,
+	0.3,
 	false,
 	false
 	};
@@ -118,6 +122,7 @@ namespace Materials
 		0.0,
 		0.2,
 		100,
+		.05,
 		false,
 		false
 	};

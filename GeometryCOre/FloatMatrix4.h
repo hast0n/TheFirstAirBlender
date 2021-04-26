@@ -48,6 +48,16 @@ public:
 	FloatMatrix4 operator/(float value) const;
 
 	void print() const;
+
+	//static FloatMatrix4 getIdentity()
+	//{
+	//	float buffer[] {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
+	//	return FloatMatrix4(buffer);
+	//}
+	//static const FloatMatrix4 getIdentity()
+	//{
+	//	
+	//}
 };
 
 std::ostream& operator<<(std::ostream& out, FloatMatrix4 m);

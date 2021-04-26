@@ -76,7 +76,7 @@ Camera::Camera()
 	_pitch = 0;
 	_yaw = 0;
 
-	CleanState();
+	Reset();
 }
 
 
@@ -92,11 +92,27 @@ void Camera::Rotate(float pitch, float yaw, float roll)
 	_state = rotationMatrix.leftMult(_state);
 }
 
+void Camera::RotateY(float deg)
+{
+	float rad = deg * M_PI / 180;
+	
+	float yaw_buffer[16] = {
+		std::cos(rad), 0, -std::sin(rad), 0,
+		0, 1, 0, 0,
+		std::sin(rad), 0, std::cos(rad), 0,
+		0, 0, 0, 1
+	};
+
+	auto m = FloatMatrix4(yaw_buffer);
+	
+	_state = m.leftMult(_state);
+}
+
 void Camera::Translate(const Vector3f& vect)
 {
-	_state.setValue(3, 0, _state.getValue(3, 0) + vect.X);
-	_state.setValue(3, 1, _state.getValue(3, 1) + vect.Y);
-	_state.setValue(3, 2, _state.getValue(3, 2) + vect.Z);
+	_state.setValue(3, 0, _state.getValue(3, 0) - vect.X);
+	_state.setValue(3, 1, _state.getValue(3, 1) - vect.Y);
+	_state.setValue(3, 2, _state.getValue(3, 2) - vect.Z);
 }
 
 
@@ -144,7 +160,7 @@ void Camera::ResetRotation()
 	_state = _state.rightMult(getRotation().getInverse());
 }
 
-void Camera::CleanState()
+void Camera::Reset()
 {
 	float state_buffer[16] =
 	{

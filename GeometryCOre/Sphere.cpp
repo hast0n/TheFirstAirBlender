@@ -103,7 +103,7 @@ bool Sphere::Intersects(const Ray& ray, Vector3f& intersect, Vector3f& normal)
 
 	// set out variable to give back intersection point
     intersect = ray.Origin + ray.Direction * i0;
-	normal = (intersect - Pos).normalize();
+	normal = (intersect - Pos).normalized();
 
     return true;
 }

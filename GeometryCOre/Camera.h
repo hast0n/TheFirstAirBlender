@@ -38,6 +38,8 @@ public:
 
 	// Add pitch, yaw and roll (X, Y, Z - unit is °)
 	void Rotate(float pitch, float yaw, float roll);
+
+	void RotateY(float deg);
 	
 	void Translate(const Vector3f& vect);
 
@@ -59,7 +61,7 @@ public:
 
 	void ResetRotation();
 
-	void CleanState();
+	void Reset();
 
 
 	

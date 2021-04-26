@@ -10,8 +10,10 @@
 #include "Ray.h"
 #include "Sphere.h"
 
-# define M_PI 3.14159265358979323846  /* pi */
-# define EPSILON 0.0001  /* min value for ray intersection distance else ignore */
+#define M_PI 3.14159265358979323846  /* pi */
+#define EPSILON 0.001f  /* min value for ray intersection distance else ignore */
+#define randFloat() (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))
+#define random_norm_vector() (Vector3f(randFloat(), randFloat(), randFloat()))
 
 RayTracer::RayTracer(Scene* scene, unsigned pixelWidth, unsigned pixelHeight)
 {
@@ -26,19 +28,61 @@ void RayTracer::Render(int max_ray_depth)
 {
 	this->initTransformMatrix();
 	const auto cameraPos = _camera_to_world_matrix.leftMult(Vector3f(0, 0, 0));
-
-	GraphicObject* unused = new Sphere();
 	
 	for (unsigned y = 0; y < _height; y++)
 	{
 		for (unsigned x = 0; x < _width; x++)
 		{
 			Vector3f pixel_pos = getRasterToWorldSpaceCoordinates(x, y);
-			Vector3f dir = (pixel_pos - cameraPos).normalize();
+			Vector3f dir = (pixel_pos - cameraPos).normalized();
 
 			auto ray = Ray(cameraPos, dir);
 		
-			const RGBAColor color = cast(ray, &unused, max_ray_depth);
+			const RGBAColor color = cast(ray, max_ray_depth);
+			
+			_buffer[4 * _width * y + 4 * x + 0] = static_cast<unsigned char>(color.r * 255);
+		    _buffer[4 * _width * y + 4 * x + 1] = static_cast<unsigned char>(color.g * 255);
+		    _buffer[4 * _width * y + 4 * x + 2] = static_cast<unsigned char>(color.b * 255);
+		    _buffer[4 * _width * y + 4 * x + 3] = static_cast<unsigned char>(color.a * 255);
+		}
+	}
+}
+
+void RayTracer::RenderFlat()
+{
+	this->initTransformMatrix();
+	const auto cameraPos = _camera_to_world_matrix.leftMult(Vector3f(0, 0, 0));
+
+	//Cube* cameraCube = new Cube(cameraPos, .01);
+	//cameraCube->SetColor(RGBAColor(0, 1, 1));
+	//_scene->AddObject(cameraCube);
+	
+	for (unsigned y = 0; y < _height; y++)
+	{
+		for (unsigned x = 0; x < _width; x++)
+		{
+			Vector3f pixel_pos = getRasterToWorldSpaceCoordinates(x, y);
+			Vector3f dir = (pixel_pos - cameraPos).normalized();
+
+			//Cube* pixelCube = new Cube(pixel_pos, .001);
+			//pixelCube->SetColor(RGBAColor(1, 0, 1));
+			//_scene->AddObject(pixelCube);
+			
+			Vector3f normal, intersect;
+
+			auto ray = Ray(cameraPos, dir);
+		
+			GraphicObject* nearest = getNearest(ray, intersect, normal);
+			RGBAColor color;
+			
+			if (nearest == nullptr)
+			{
+				color = _scene->BackgroundColor * _scene->AmbientLighting;
+			}
+			else
+			{
+				color = nearest->getMaterial().finish;
+			}
 			
 			_buffer[4 * _width * y + 4 * x + 0] = static_cast<unsigned char>(color.r * 255);
 		    _buffer[4 * _width * y + 4 * x + 1] = static_cast<unsigned char>(color.g * 255);
@@ -72,23 +116,11 @@ Vector3f RayTracer::getRasterToWorldSpaceCoordinates(unsigned x, unsigned y) con
 	return _camera_to_world_matrix.leftMult(Vector3f(newX, newY, - zNear));
 }
 
-// incident is toward intersect
-Vector3f RayTracer::getReflectedDirection(const Vector3f& incident, const Vector3f& normal)
+GraphicObject* RayTracer::getNearest(Ray& ray, Vector3f& intersect, Vector3f& normal) const
 {
-	return (incident - 2 * (normal * incident) * normal).normalize();
-}
-
-RGBAColor RayTracer::cast(Ray& ray, GraphicObject** nearest, int max_ray_depth, bool getColor) const
-{
-	// return no illumination if max recursion reached
-	if (max_ray_depth < 0) return RGBAColor{0, 0, 0, 1};
+	GraphicObject* nearest = nullptr;
 	
 	float distMin = INFINITY;
-	bool found = false;
-
-	RGBAColor color = _scene->BackgroundColor * _scene->AmbientLighting;
-	Vector3f normal;
-	Vector3f intersect;
 	
 	for (int i = 0; i < _scene->nbGraphicObject; ++i)
 	{
@@ -102,23 +134,43 @@ RGBAColor RayTracer::cast(Ray& ray, GraphicObject** nearest, int max_ray_depth, 
 
 			if (dist < distMin && dist > EPSILON)
 			{
-				*nearest = obj;
+				distMin = dist;
+				nearest = obj;
 				intersect = p;
 				normal = n;
-				distMin = dist;
-				found = true;
 			}
 		}
 	}
 
-	if (found && getColor)
+	return nearest;
+}
+
+// incident is toward intersect
+Vector3f RayTracer::getReflectedDirection(const Vector3f& incident, const Vector3f& normal)
+{
+	return (incident - 2 * (normal * incident) * normal).normalized();
+}
+
+RGBAColor RayTracer::cast(Ray& ray, int max_ray_depth, bool getColor) const
+{
+	// return no illumination if max recursion reached
+	if (max_ray_depth < 0) return RGBAColor{0, 0, 0, 1};
+	
+	RGBAColor color = _scene->BackgroundColor * _scene->AmbientLighting;
+	Vector3f normal, intersect;
+
+	GraphicObject* nearest = getNearest(ray, intersect, normal);
+
+	//if (found && getColor)
+	if (nearest != nullptr && getColor)
 	{
-		auto material = (*nearest)->getMaterial();
+		auto material = nearest->getMaterial();
 		RGBAColor c0 = this->getIllumination(ray, intersect, normal, material);
 		
-		auto rdir = getReflectedDirection(ray.Direction, normal);
+		auto rdir = getReflectedDirection(ray.Direction, normal)
+			+ material.fuzz * random_norm_vector();
 		Ray rray = Ray(intersect, rdir);
-		const RGBAColor c1 = cast(rray, nearest, --max_ray_depth);
+		const RGBAColor c1 = cast(rray, --max_ray_depth);
 
 		color = (c0 + c1 * material.reflectance) * (material.is_metallic ? material.finish : RGBAColor(1, 1, 1));
 		color = (color).capped();
@@ -166,9 +218,9 @@ RGBAColor RayTracer::getPhong(Ray& ray, Vector3f intersect, Vector3f normal,
 
 		if (isInShadow(intersect, light->getPosition())) continue;
 		
-		Vector3f L = (light->getPosition() - intersect).normalize(); //intercept to light vector
+		Vector3f L = (light->getPosition() - intersect).normalized(); //intercept to light vector
 		Vector3f R = getReflectedDirection(-L, normal);
-		Vector3f V = (ray.Origin - intersect).normalize();
+		Vector3f V = (ray.Origin - intersect).normalized();
 		
 		float diffuse = (L * normal) * material.diffuse; // * ;
 		diffuseColor += (material.finish * diffuse).capped();
@@ -177,8 +229,9 @@ RGBAColor RayTracer::getPhong(Ray& ray, Vector3f intersect, Vector3f normal,
 		if (t > 0)
 		{
 			float specular = std::pow(t, material.shininess) * material.specular;
-
-			specularColor += material.is_metallic ? light->getColor() * material.finish * specular : light->getColor() * specular;
+			specularColor += material.is_metallic
+				? light->getColor() * material.finish * specular
+				: light->getColor() * specular;
 		}
 		
 	}
@@ -188,19 +241,27 @@ RGBAColor RayTracer::getPhong(Ray& ray, Vector3f intersect, Vector3f normal,
 
 bool RayTracer::isInShadow(Vector3f& intersect, Vector3f lightPos) const
 {
-	GraphicObject* base = new Sphere();
-	GraphicObject* block = base;
-	const Vector3f dir = (lightPos - intersect).normalize();
+	Vector3f n, i;
+
+	const Vector3f dir = (lightPos - intersect).normalized();
 	auto ray = Ray(intersect, dir);
 
-	cast(ray, &block, 0, false);
+	GraphicObject* obj = getNearest(ray, n, i);
 
-	return block != base;
+	return obj != nullptr;
 }
 
 void RayTracer::RenderAndSave(int max_ray_depth, std::string file_path)
 {
 	this->Render(max_ray_depth);
+	
+	PNGExporter exporter = PNGExporter(_buffer, _width, _height);
+	exporter.Export(file_path);
+}
+
+void RayTracer::RenderAndSaveFlat(int max_ray_depth, std::string file_path)
+{
+	this->RenderFlat();
 	
 	PNGExporter exporter = PNGExporter(_buffer, _width, _height);
 	exporter.Export(file_path);

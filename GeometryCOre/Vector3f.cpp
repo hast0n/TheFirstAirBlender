@@ -113,7 +113,7 @@ Vector3f Vector3f::operator^(const Vector3f& v2) const // Produit vectoriel (nor
 	);
 }
 
-Vector3f Vector3f::normalize() const
+Vector3f Vector3f::normalized() const
 {
 	float length = this->length();
 	return Vector3f(X / length, Y / length, Z / length);

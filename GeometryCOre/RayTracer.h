@@ -1,7 +1,5 @@
 #pragma once
 #include <string>
-
-
 #include "FloatMatrix4.h"
 #include "Scene.h"
 
@@ -23,13 +21,19 @@ public:
 	
 	void Render(int max_ray_depth);
 
+	void RenderFlat();
+
 	void RenderAndSave(int max_ray_depth, std::string file_path);
+
+	void RenderAndSaveFlat(int max_ray_depth, std::string file_path);
 
 	void initTransformMatrix();
 	
 	Vector3f getRasterToWorldSpaceCoordinates(unsigned x, unsigned y) const;
+
+	GraphicObject* getNearest(Ray& ray, Vector3f& intersect, Vector3f& normal) const;
 	
-	RGBAColor cast(Ray& ray, GraphicObject** nearest, int max_ray_depth, bool getColor = true) const;
+	RGBAColor cast(Ray& ray, int max_ray_depth, bool getColor = true) const;
 	
 	FloatMatrix4 getCameraToWorldMatrix() const;
 

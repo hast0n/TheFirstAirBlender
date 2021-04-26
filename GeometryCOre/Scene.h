@@ -13,7 +13,7 @@ public:
 
 	Camera* Camera;
 	Light* lights_array[10]{};
-	GraphicObject* graphic_object_array[1000]{};
+	GraphicObject* graphic_object_array[1000000]{};
 
 	RGBAColor BackgroundColor = RGBAColor{.0f, .0f, .0f, 1.f};
 	RGBAColor AmbientLighting = RGBAColor{1.f, 1.f, 1.f, 1.f};
