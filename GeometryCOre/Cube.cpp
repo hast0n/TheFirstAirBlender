@@ -2,6 +2,8 @@
 #include "Cube.h"
 #include <windows.h>
 
+#define EPSILON 0.001f; // float comparison margin
+
 Cube::Cube(const Vector3f& cubePosition, float cubeSize): GraphicObject()
 {
 	Pos = cubePosition;
@@ -119,10 +121,31 @@ bool Cube::Intersects(const Ray& ray, Vector3f& intersect, Vector3f& normal)
 	if (t < 0) { 
         t = tmax; 
         if (t < 0) return false; 
-    } 
+    }
 	
     intersect = ray.Origin + ray.Direction * t;
-	//normal = ( - Pos).normalize();
+
+	auto v = intersect - Pos;
+	auto low_margin = halfSize * halfSize - EPSILON;
+	auto high_margin = halfSize * halfSize + EPSILON;
+	
+	const auto x_sqrd = v.X * v.X;
+	if (x_sqrd > low_margin && x_sqrd < high_margin)
+	{
+		normal = Vector3f(v.X > 0 ? 1 : -1, 0, 0);
+	}
+
+	const auto y_sqrd = v.Y * v.Y;
+	if (y_sqrd > low_margin && y_sqrd < high_margin)
+	{
+		normal = Vector3f(0, v.Y > 0 ? 1 : -1, 0);
+	}
+
+	const auto z_sqrd = v.Z * v.Z;
+	if (z_sqrd > low_margin && z_sqrd < high_margin)
+	{
+		normal = Vector3f(0, 0, v.Z > 0 ? 1 : -1);
+	}
 	
     return true; 
 }

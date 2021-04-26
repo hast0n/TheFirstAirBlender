@@ -26,6 +26,12 @@ static const float newYunit = static_cast<float>(rtHeight) / static_cast<float>(
 static Scene* scene = new Scene();
 static RayTracer rt = RayTracer(scene, rtWidth, rtHeight);
 
+Materials::Material mat_array[3] = {
+	Materials::Plastic,
+	Materials::MirrorLike,
+	Materials::Default
+};
+
 void add_axis_cubes_to_scene()
 {
 	Cube* cube1 = new Cube(Vector3f(0.0f, 0.0f, -1.0f), .1); // front rouge
@@ -64,10 +70,10 @@ void add_random_spheres_to_scene()
 		Materials::Default
 	};
 
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < 50; ++i)
 	{
 		auto a = randInt(0, 2);
-		Materials::Material mat = mat_array[a]; //TODO: fix: assigns same material to each sphere
+		Materials::Material mat = mat_array[a];
 		Sphere* sphere = new Sphere(
 			Vector3f(
 				randFloatFromTo(posMin, posMax),
@@ -76,7 +82,6 @@ void add_random_spheres_to_scene()
 			), 
 			randFloatFromTo(sizeMin, sizeMax));
 		sphere->SetMaterial(mat); 
-		//sphere->SetColor(RGBAColor(0.9, .9, .9));
 		sphere->SetColor(RGBAColor(randFloat(), randFloat(), randFloat()));
 		scene->AddObject(sphere);
 	}
@@ -84,22 +89,16 @@ void add_random_spheres_to_scene()
 
 void add_random_cubes_to_scene()
 {
-	//Sphere* sphere1 = new Sphere(Vector3f(0.2, 0, -1), 0.2f);
-	//sphere1->SetColor(Vector3f(0.0, 1.0, 0.0));
-	//scene->Add(sphere1);
-
-	//Sphere* sphere2 = new Sphere(Vector3f(-0.2, 0, -1), 0.2f);
-	//sphere2->SetColor(Vector3f(1.0, 1.0, 1.0));
-	//scene->Add(sphere2);
-
-	float posMin = -8;
-	float posMax = 8;
+	float posMin = -30;
+	float posMax = 30;
 	
-	float sizeMin = 5;
+	float sizeMin = 1;
 	float sizeMax = 5;
 	
-	for (int i = 0; i < 2; ++i)
+	for (int i = 0; i < 50; ++i)
 	{
+		auto a = randInt(0, 2);
+		Materials::Material mat = mat_array[a];
 		Cube* cube = new Cube(
 			Vector3f(
 				randFloatFromTo(posMin, posMax),
@@ -107,6 +106,7 @@ void add_random_cubes_to_scene()
 				randFloatFromTo(posMin, posMax)
 			), 
 			randFloatFromTo(sizeMin, sizeMax));
+		cube->SetMaterial(mat); 
 		cube->SetColor(RGBAColor(randFloat(), randFloat(), randFloat()));
 		scene->AddObject(cube);
 	}
@@ -114,7 +114,7 @@ void add_random_cubes_to_scene()
 
 void render_frames_360_animation(const float dist, const float height)
 {	
-	const int fps = 60; // frame rate
+	const int fps = 24; // frame rate
 	const int duration = 6; // secondes
 
 	const float angle = 360;
@@ -217,19 +217,19 @@ void initScene()
 
 	Light* light1 = new Light(Vector3f(-5, 10, -5), RGBAColor(1, 1, 1));
 	scene->AddLight(light1);
-	//Light* light2 = new Light(Vector3f(-5, 10, 5), RGBAColor(1, 1, 1));
-	//scene->AddLight(light2);	
-	//Light* light3 = new Light(Vector3f(5, 10, -5), RGBAColor(1, 1, 1));
-	//scene->AddLight(light3);	
-	//Light* light4 = new Light(Vector3f(5, 10, 5), RGBAColor(1, 1, 1));
-	//scene->AddLight(light4);
+	Light* light2 = new Light(Vector3f(-5, 10, 5), RGBAColor(1, 1, 1));
+	scene->AddLight(light2);	
+	Light* light3 = new Light(Vector3f(5, 10, -5), RGBAColor(1, 1, 1));
+	scene->AddLight(light3);	
+	Light* light4 = new Light(Vector3f(5, 10, 5), RGBAColor(1, 1, 1));
+	scene->AddLight(light4);
 	
 	//add_axis_cubes_to_scene();
 	add_random_spheres_to_scene();
-	//add_random_cubes_to_scene();
+	add_random_cubes_to_scene();
 	//set_rt_test_scene();
 
-	//render_frames_360_animation(30, 0);
+	render_frames_360_animation(30, 0);
 }
 
 GraphicObject* pick(int x, int y)
