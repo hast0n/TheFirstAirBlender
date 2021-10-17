@@ -91,10 +91,10 @@ namespace Materials
 	const Material MirrorLike = {
 		RGBAColor(1, .5, 0),
 
-		1,
+		0.7f,
 		1,
 		0,
-		1,
+		0.5,
 		250,
 		0,
 		false,
@@ -104,12 +104,12 @@ namespace Materials
 	const Material Plastic = {
 	RGBAColor(1, 0, 1),
 
-	0.8,
-	0.08,
+	0.5f,
+	0.08f,
 	0,
-	0.1,
+	0.1f,
 	10,
-	0.3,
+	0.3f,
 	false,
 	false
 	};
@@ -117,12 +117,12 @@ namespace Materials
 	const Material Default = {
 		RGBAColor(1, 1, 1),
 
-		1,
+		0.6f,
 		0.5,
 		0.0,
-		0.2,
+		0.2f,
 		100,
-		.05,
+		.05f,
 		false,
 		false
 	};

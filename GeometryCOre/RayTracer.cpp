@@ -1,4 +1,5 @@
 #include "RayTracer.h"
+
 #include <iostream>
 #include <string>
 
@@ -54,7 +55,7 @@ void RayTracer::RenderFlat()
 	const auto cameraPos = _camera_to_world_matrix.leftMult(Vector3f(0, 0, 0));
 
 	//Cube* cameraCube = new Cube(cameraPos, .01);
-	//cameraCube->SetColor(RGBAColor(0, 1, 1));
+	//cameraCube->SetColor(RGBAColor(0, 0, 0));
 	//_scene->AddObject(cameraCube);
 	
 	for (unsigned y = 0; y < _height; y++)
@@ -67,6 +68,15 @@ void RayTracer::RenderFlat()
 			//Cube* pixelCube = new Cube(pixel_pos, .001);
 			//pixelCube->SetColor(RGBAColor(1, 0, 1));
 			//_scene->AddObject(pixelCube);
+
+			//if (!y % 10 && ! x % 10)
+			//{
+			//	glMatrixMode(GL_MODELVIEW);
+			//	glBegin(GL_LINES);
+			//		glVertex3f(-cameraPos.X, -cameraPos.Y, -cameraPos.Z);
+			//		glVertex3f(-pixel_pos.X * 10, -pixel_pos.Y * 10, -pixel_pos.Z * 10);
+			//	glEnd();
+			//}
 			
 			Vector3f normal, intersect;
 
@@ -208,7 +218,14 @@ RGBAColor RayTracer::getIllumination(Ray& ray, Vector3f intersect, Vector3f norm
 RGBAColor RayTracer::getPhong(Ray& ray, Vector3f intersect, Vector3f normal,
 	Materials::Material material) const
 {
-	const RGBAColor ambientColor = _scene->AmbientLighting * material.finish;
+	//RGBAColor fullLightContribution = RGBAColor(1, 1, 1, 1);
+	//for (int i = 0; i < _scene->nbLights; ++i)
+	//{
+	//	Light* light = _scene->getLight(i);
+	//	fullLightContribution = fullLightContribution * light->getColor();
+	//}
+	
+	RGBAColor ambientColor = _scene->AmbientLighting * material.finish;
 	RGBAColor diffuseColor = RGBAColor();
 	RGBAColor specularColor = RGBAColor();
 
@@ -216,7 +233,8 @@ RGBAColor RayTracer::getPhong(Ray& ray, Vector3f intersect, Vector3f normal,
 	{
 		Light* light = _scene->getLight(i);
 
-		if (isInShadow(intersect, light->getPosition())) continue;
+		const bool shadow = isInShadow(intersect, light->getPosition());
+		if (shadow) continue;
 		
 		Vector3f L = (light->getPosition() - intersect).normalized(); //intercept to light vector
 		Vector3f R = getReflectedDirection(-L, normal);
@@ -243,12 +261,17 @@ bool RayTracer::isInShadow(Vector3f& intersect, Vector3f lightPos) const
 {
 	Vector3f n, i;
 
-	const Vector3f dir = (lightPos - intersect).normalized();
+	const Vector3f seg = lightPos - intersect;
+	const float segLength = seg.length();
+
+	const Vector3f dir = seg.normalized();
 	auto ray = Ray(intersect, dir);
 
-	GraphicObject* obj = getNearest(ray, n, i);
+	GraphicObject* obj = getNearest(ray, i, n);
+	const float dist = (i -intersect).length();
 
-	return obj != nullptr;
+	const bool result = (obj != nullptr) ? (segLength > dist) : false;
+	return result;
 }
 
 void RayTracer::RenderAndSave(int max_ray_depth, std::string file_path)

@@ -14,6 +14,8 @@ public:
 
 	Vector3f getPosition() const;
 	
+	void setPosition(Vector3f newPos);
+	
 	RGBAColor getColor() const;
 		
 };
